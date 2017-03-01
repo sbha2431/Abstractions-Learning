@@ -1,2 +1,2 @@
-"Example problem"
+"""Example problem"""
 
