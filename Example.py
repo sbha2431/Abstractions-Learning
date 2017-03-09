@@ -33,3 +33,4 @@ mdp = MDP(states,set(),acts,transitions)
 
 stateaction = set(product(states,acts))
 R = dict.fromkeys(stateaction)
+print R
