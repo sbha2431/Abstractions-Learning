@@ -18,7 +18,6 @@ class MDP(NFA):
     def prob_delta(self, s, a, t):
         return self._prob_cache[(s, a, t)]
 
-    # Not working as well as it should. don't know what's wrong.
     def sample(self, state, action):
         """Sample the next state according to the current state, the action, and
         the transition probability. """
@@ -38,7 +37,7 @@ class MDP(NFA):
     def set_prob_delta(self, s, a, t, p):
         self._prob_cache[(s, a, t)] = p
 
-    def T_step_value_iteration(self, T, R,
+    def T_step_value_iteration(self,R, T = None,
                         epsilon=0.0001, gamma=0.9):
         """Solving an MDP by value iteration"""
         U1 = dict([(s, 0) for s in self.states])
@@ -46,7 +45,10 @@ class MDP(NFA):
                   for a in self.available(s)
                   for t in self.post(s, a)])
         policy = dict([(s, set()) for s in self.states])
-        t = T
+        if T != None:
+            t = T
+        else:
+            t = 500000
         while t > 0:
             U = U1.copy()
             delta = 0
@@ -113,3 +115,5 @@ class MDP(NFA):
                 # print "iteration: {} and the state
                 # value is {}".format(t, Vstate1)
         return Vstate1, policyT
+
+
