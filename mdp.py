@@ -41,11 +41,8 @@ class MDP(NFA):
                         epsilon=0.0001, gamma=0.9):
         """Solving an MDP by value iteration"""
         U1 = dict([(s, 0) for s in self.states])
-        P = dict([((s, a, t), set()) for s in self.states
-                  for a in self.available(s)
-                  for t in self.post(s, a)])
         policy = dict([(s, set()) for s in self.states])
-        if T != None:
+        if T is not None:
             t = T
         else:
             t = 500000
@@ -53,9 +50,8 @@ class MDP(NFA):
             U = U1.copy()
             delta = 0
             for s in self.states:
-                U1[s] = max([sum([p * (gamma * U[s1] + R[s, a, s1])
-                                  for s1 in self.post(s, a)
-                                  for p in P[(s, a, s1)]])]
+                U1[s] = max([sum([self.prob_delta(s,a,s1) * (gamma * U[s1] + R[s, a,s1])
+                                  for s1 in self.post(s, a)])]
                             for a in self.available(s))[0]
                 delta = max(delta, abs(U1[s] - U[s]))
                 if delta < epsilon * (1 - gamma) / gamma:
@@ -65,9 +61,8 @@ class MDP(NFA):
         for s in self.states:
             Vmax = dict()
             for a in self.available(s):
-                Vmax[a] = [sum([p * (gamma*U[s1] + R[s, a, s1])
-                                for s1 in self.post(s, a)
-                                for p in P[(s, a, s1)]])][0]
+                Vmax[a] = [sum([self.prob_delta(s,a,s1) * (gamma*U[s1] + R[s, a,s1])
+                                for s1 in self.post(s, a)])][0]
             maxV = max(Vmax.values())
             for a in Vmax.keys():
                 if Vmax[a] == maxV:
