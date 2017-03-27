@@ -4,10 +4,10 @@ import numpy as np
 
 
 class MDP(NFA):
-    def __init__(self, states, accepting_states, alphabet, transitions=[]):
+    def __init__(self, states, alphabet, transitions=[]):
         # we call the underlying NFA constructor but drop the probabilities
         trans = [(s, a, t) for s, a, t, p in transitions]
-        super(MDP, self).__init__(states, accepting_states, alphabet, trans)
+        super(MDP, self).__init__(states, alphabet, trans)
         # in addition to the NFA we need a probabilistic transition
         # function
         self._prob_cache = dict()
@@ -50,7 +50,7 @@ class MDP(NFA):
             U = U1.copy()
             delta = 0
             for s in self.states:
-                U1[s] = max([sum([self.prob_delta(s,a,s1) * (gamma * U[s1] + R[s, a,s1])
+                U1[s] = max([sum([self.prob_delta(s,a,s1) * (gamma * U[s1] + R[s, a])
                                   for s1 in self.post(s, a)])]
                             for a in self.available(s))[0]
                 delta = max(delta, abs(U1[s] - U[s]))
@@ -61,7 +61,7 @@ class MDP(NFA):
         for s in self.states:
             Vmax = dict()
             for a in self.available(s):
-                Vmax[a] = [sum([self.prob_delta(s,a,s1) * (gamma*U[s1] + R[s, a,s1])
+                Vmax[a] = [sum([self.prob_delta(s,a,s1) * (gamma*U[s1] + R[s, a])
                                 for s1 in self.post(s, a)])][0]
             maxV = max(Vmax.values())
             for a in Vmax.keys():
