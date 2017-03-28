@@ -18,7 +18,7 @@ def create_abstractMDP(mdp,aggregation):
     for (s,a) in abstrans.keys():
         for t in abstrans[(s,a)]:
             abstransprobs.add((s,a,t,1.0/len(abstrans[(s,a)])))
-    absmdp = MDP(states,mdp.alphabet,abstransprobs)
+    absmdp = MDP(states, mdp.alphabet, abstransprobs)
     return absmdp
 
 
