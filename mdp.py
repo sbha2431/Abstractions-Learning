@@ -41,6 +41,7 @@ class MDP(NFA):
                         epsilon=0.0001, gamma=0.9):
         """Solving an MDP by value iteration"""
         U1 = dict([(s, 0) for s in self.states])
+        self._prepare_post_cache()
         policy = dict([(s, set()) for s in self.states])
         if T is not None:
             t = T
@@ -54,8 +55,8 @@ class MDP(NFA):
                                   for s1 in self.post(s, a)])]
                             for a in self.available(s))[0]
                 delta = max(delta, abs(U1[s] - U[s]))
-                if delta < epsilon * (1 - gamma) / gamma:
-                    break
+            if delta < epsilon * (1 - gamma) / gamma:
+                break
             t = t - 1
 
         for s in self.states:
@@ -69,7 +70,7 @@ class MDP(NFA):
                     policy[s].add(a)
         return U, policy
 
-    def max_reach_prob(self, epsilon=0.00001):
+    def max_reach_prob(self, target,epsilon=0.00001):
         """
         infinite time horizon
         Value iteration: Vstate[s] the maximal probability of hitting the
@@ -77,7 +78,7 @@ class MDP(NFA):
         """
         policyT = dict([])
         Vstate1 = dict([])
-        Win = self.accepting_states
+        Win = target
         NAEC = set(self.states) - Win
         Vstate1.update({s: 1 for s in list(Win)})
         Vstate1.update({s: 0 for s in list(NAEC)})

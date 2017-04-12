@@ -35,34 +35,35 @@ mdp = MDP(states,acts,transitions)
 #Define rewards
 Rs = dict((s,0) for s in states)
 Rs[0] = 0
-Rs[1] = 3
-Rs[2] = 2
-Rs[3] = 10
+Rs[1] = -3
+Rs[2] = -2
+Rs[3] = -10
 Rs[4] = 0
 Rs[5] = -1
 R = dict(((s,a),0) for (s,a,t) in mdp.transitions)
-
-for s in mdp.states:
-    for a in mdp.available(s):
-        for t in mdp.post(s,a):
-            R[(s,a)] = Rs[t]
-
-# abstraction
-aggregation = dict()
-aggregation[0] = {0}
-aggregation[1] = {1,2,3}
-aggregation[2] = {4,5}
-
-AbsLearnMDP = Learning.AbstractMDPLearner(mdp, aggregation)
-initial = 0
-AbsLearnMDP.random_exploration(initial, 10000, Rs)
-alphas, avars = AbsLearnMDP.estimator()
-aprod = {s: [] for s in AbsLearnMDP.states}
-for s in aprod.keys():
-    aprod[s] = [a*b for a, b in zip(alphas[s].keys(), alphas[s].values())]
-    print 'Variance in alpha values in state ', str(s), ' is ', str(np.var(aprod[s]))
-
-print alphas
-print avars
-print aprod
-print AbsLearnMDP.count_sum
+policy = mdp.T_step_value_iteration(R)
+print policy
+# # for s in mdp.states:
+# #     for a in mdp.available(s):
+# #         for t in mdp.post(s,a):
+# #             R[(s,a)] = Rs[t]
+#
+# # abstraction
+# aggregation = dict()
+# aggregation[0] = {0}
+# aggregation[1] = {1,2,3}
+# aggregation[2] = {4,5}
+#
+# AbsLearnMDP = Learning.AbstractMDPLearner(mdp, aggregation)
+# initial = 0
+# AbsLearnMDP.random_exploration(initial, 10000, Rs)
+# alphas, avars = AbsLearnMDP.estimator()
+# aprod = {s: [] for s in AbsLearnMDP.states}
+# for s in aprod.keys():
+#     aprod[s] = [a*b for a, b in zip(alphas[s].keys(), alphas[s].values())]
+#     print 'Variance in alpha values in state ', str(s), ' is ', str(np.var(aprod[s]))
+#
+# print alphas
+# print avars
+# print aprod
+# print AbsLearnMDP.count_sum
