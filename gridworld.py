@@ -289,7 +289,7 @@ class Gridworld():
         self.screen.blit(self.surface, (0, 0))
         pygame.display.flip()
 
-    #       
+    #
     def save(self, filename):
         pygame.image.save(self.surface, filename)
 

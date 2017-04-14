@@ -15,7 +15,8 @@ regions['sand']= range(nrows*ncols)
 gwg = Gridworld(initial, nrows, ncols, targets, obstacles,regions)
 gwg.render()
 gwg.draw_state_labels()
-V,P =  gwg.mdp.max_reach_prob({8})
-print P
-print V
 
+R = dict([(s,a,next_s),0] for s in gwg.mdp.states for a in gwg.mdp.alphabet for next_s in gwg.mdp.post(s,a))
+R.update([(s,a,next_s),1] for s in gwg.mdp.states for a in gwg.mdp.alphabet for next_s in gwg.mdp.post(s,a) if next_s in targets and s not in targets)
+
+V,P =  gwg.mdp.max_reach_prob({8})
