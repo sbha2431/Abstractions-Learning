@@ -32,28 +32,28 @@ transitions.add((4,'b',4,1))
 
 mdp = MDP(states,acts,transitions)
 
-#Define rewards
-Rs = dict((s,0) for s in states)
-Rs[0] = 0
-Rs[1] = -3
-Rs[2] = -2
-Rs[3] = -10
-Rs[4] = 0
-Rs[5] = -1
-R = dict(((s,a),0) for (s,a,t) in mdp.transitions)
-policy = mdp.T_step_value_iteration(R)
-print policy
+# #Define rewards
+# Rs = dict((s,0) for s in states)
+# Rs[0] = 0
+# Rs[1] = -3
+# Rs[2] = -2
+# Rs[3] = -10
+# Rs[4] = 0
+# Rs[5] = -1
+# R = dict(((s,a),0) for (s,a,t) in mdp.transitions)
+# # policy = mdp.T_step_value_iteration(R)
+# # print policy
 # # for s in mdp.states:
 # #     for a in mdp.available(s):
 # #         for t in mdp.post(s,a):
 # #             R[(s,a)] = Rs[t]
 #
-# # abstraction
+# # # abstraction
 # aggregation = dict()
 # aggregation[0] = {0}
 # aggregation[1] = {1,2,3}
 # aggregation[2] = {4,5}
-#
+# #
 # AbsLearnMDP = Learning.AbstractMDPLearner(mdp, aggregation)
 # initial = 0
 # AbsLearnMDP.random_exploration(initial, 10000, Rs)

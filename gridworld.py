@@ -1,3 +1,4 @@
+__author__ = 'sudab'
 """ Generate a grid world """
 import os, sys, getopt, pdb, string
 import random
@@ -6,26 +7,28 @@ import pygame
 from mdp import MDP
 import pygame.locals as pgl
 
-
 class Gridworld():
     # a gridworld with uneven terrain
-    def __init__(self, initial=0, nrows=8, ncols=8, targets=[], obstacles=[], regions=dict()):
+    def __init__(self, initial, nrows=8, ncols=8, nagents=1, targets=[], obstacles=[], moveobstacles = [], regions=dict(),preferred_acts=set()):
         # walls are the obstacles. The edges of the gridworld will be included into the walls.
         # region is a string and can be one of: ['pavement','gravel', 'grass', 'sand']
         self.current = initial
-        self.nrows = nrows
+        self.nrows = nrows  
         self.ncols = ncols
+        self.nagents = nagents
         self.nstates = nrows * ncols
-        self.states = range(self.nstates)
-        self.nactions = 4
+        self.nactions = 5
         self.regions = regions
-        self.actlist = ['N', 'S', 'W', 'E']
+        self.actlist = ['N', 'S', 'W', 'E', 'R']
         self.targets = targets
         self.left_edge = []
         self.right_edge = []
         self.top_edge = []
         self.bottom_edge = []
         self.obstacles = obstacles
+        self.moveobstacles = moveobstacles
+        self.states = range(nrows*ncols)
+        self.colorstates = set()
         for x in range(self.nstates):
             # note that edges are not disjoint, so we cannot use elif
             if x % self.ncols == 0:
@@ -42,11 +45,9 @@ class Gridworld():
 
         self.probOfSuccess = dict([])
         self.getProbRegions()
-
-        for s in range(self.nstates):
+        for s in self.states:
             for a in self.actlist:
                 self.getProbs(s, a)
-
         transitions = set()
         for s in self.states:
             for a in self.actlist:
@@ -59,15 +60,20 @@ class Gridworld():
     def coords(self, s):
         return (s / self.ncols, s % self.ncols)  # the coordinate for state s.
 
-    def isAllowed(self, state):
-        if state in self.edges or state not in range(self.nstates):
+    def isAllowed(self, (row,col)):
+        if col not in range(self.ncols) or row not in range(self.nrows):
             return False
         return True
+
+    def isAllowedState(self,(row,col),returnState):
+        if self.isAllowed((row,col)):
+            return self.rcoords((row,col))
+        return returnState
 
     def getProbRegions(self):
         probOfSuccess = dict([])
         for ground in self.regions.keys():
-            for direction in ['N', 'S', 'E', 'W']:
+            for direction in ['N', 'S', 'W', 'E']:
                 if ground == 'pavement':
                     mass = random.choice(range(90, 95))
                     massleft = 100 - mass
@@ -103,22 +109,30 @@ class Gridworld():
     def getProbs(self, state, action):
         successors = []
 
-        if state in self.walls:
+        if state in self.obstacles:
             successors = [(state, 1)]
             for (next_state, p) in successors:
                 self.prob[action][state, next_state] = p
                 return
-
-        northState = (self.isAllowed(state - self.ncols) and state - self.ncols) or state
-        northwestState = (self.isAllowed(state - 1 - self.ncols) and state - 1 - self.ncols) or state
-        northeastState = (self.isAllowed(state + 1 - self.ncols) and state - self.ncols + 1) or state
-
-        southState = (self.isAllowed(state + self.ncols) and state + self.ncols) or state
-        southeastState = (self.isAllowed(state + 1 + self.ncols) and state + 1 + self.ncols) or state
-        southwestState = (self.isAllowed(state - 1 + self.ncols) and state - 1 + self.ncols) or state
-
-        westState = (self.isAllowed(state - 1) and state - 1) or state
-        eastState = (self.isAllowed(state + 1) and state + 1) or state
+        row,col = self.coords(state)
+        northState = self.isAllowedState((row-1,col),state)
+        northwestState = self.isAllowedState((row-1,col-1),state)
+        northeastState = self.isAllowedState((row-1,col+1),state)
+        southState = self.isAllowedState((row+1,col),state)
+        southeastState = self.isAllowedState((row+1,col+1),state)
+        southwestState = self.isAllowedState((row+1,col-1),state)
+        westState = self.isAllowedState((row,col-1),state)
+        eastState = self.isAllowedState((row,col+1),state)
+        # northState = (self.isAllowed(state - self.ncols) and state - self.ncols) or state
+        # northwestState = (self.isAllowed(state - 1 - self.ncols) and state - 1 - self.ncols) or state
+        # northeastState = (self.isAllowed(state + 1 - self.ncols) and state - self.ncols + 1) or state
+        #
+        # southState = (self.isAllowed(state + self.ncols) and state + self.ncols) or state
+        # southeastState = (self.isAllowed(state + 1 + self.ncols) and state + 1 + self.ncols) or state
+        # southwestState = (self.isAllowed(state - 1 + self.ncols) and state - 1 + self.ncols) or state
+        #
+        # westState = (self.isAllowed(state - 1) and state - 1) or state
+        # eastState = (self.isAllowed(state + 1) and state + 1) or state
 
         reg = self.getStateRegion(state)
         if action == 'N':
@@ -144,6 +158,9 @@ class Gridworld():
             successors.append((eastState, p0))
             successors.append((southeastState, p1))
             successors.append((northeastState, p2))
+
+        if action == 'R':
+            successors.append((state,1))
 
         for (next_state, p) in successors:
             self.prob[action][state, next_state] += p
@@ -185,6 +202,21 @@ class Gridworld():
 
         self.state2circle(self.current)
 
+    def getkeyinput(self):
+        events = pygame.event.get()
+        for event in events:
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    return 'W'
+                elif event.key == pygame.K_RIGHT:
+                    return 'E'
+                if event.key == pygame.K_UP:
+                    return 'N'
+                elif event.key == pygame.K_DOWN:
+                    return 'S'
+                elif event.key == pygame.K_SPACE:
+                    return 'Space'
+
     def build_templates(self):
 
         # Note: template already in "graphics" coordinates
@@ -194,6 +226,7 @@ class Gridworld():
         v = 1.0 / np.sqrt(2)
         rot90 = np.array([(0, 1), (-1, 0)])
         rot45 = np.array([(v, -v), (v, v)])  # neg
+
 
         #
         # align the template with the first action.
@@ -260,16 +293,20 @@ class Gridworld():
         pygame.display.flip()
 
     def coord2state(self, coord):
-        s = self.coord2indx(coord[0], coord[1])
+        s = self.coord2indx((coord[0], coord[1]))
         return s
 
     def state2circle(self, state, bg=True, blit=True):
         if bg:
             self.background()
 
-        x, y = self.indx2coord(state, center=True)
-        pygame.draw.circle(self.surface, (0, 0, 255), (y, x), self.size / 2)
-
+        for n in range(self.nagents):
+            x, y = self.indx2coord(state[n], center=True)
+            pygame.draw.circle(self.surface, (0, 0, 255), (y, x), self.size / 2)
+        if len(self.moveobstacles) > 0:
+            for s in self.moveobstacles:
+                x, y = self.indx2coord(s, center=True)
+                pygame.draw.circle(self.surface, (205, 92, 0), (y, x), self.size / 2)
         if blit:
             self.screen.blit(self.surface, (0, 0))
             pygame.display.flip()
@@ -297,10 +334,29 @@ class Gridworld():
         self.screen.blit(self.surface, (0, 0))
         pygame.display.flip()
 
+    def move_obj(self, s, bg=True, blit=True):
+
+        """Including A moving object into the gridworld, which moves uniformly at
+        random in all accessible directions (including idle), without
+        hitting the wall or another other statitic obstacle.  Input: a
+        gridworld gui, the current state index for the obstacle and the
+        number of steps.
+
+        """
+        if bg:
+            self.background()
+        x, y = self.indx2coord(s, center=True)
+        pygame.draw.circle(self.surface, (205, 92, 0), (y, x), self.size / 2)
+
+        if blit:
+            self.screen.blit(self.surface, (0, 0))
+            pygame.display.flip()
+
+        return
+
     def move_deter(self, next_state):
         self.current = next_state
-        if self.updategui:
-            self.state2circle(self.current)
+
         return
 
     def background(self):
@@ -315,18 +371,18 @@ class Gridworld():
                 x, y = self.indx2coord(s, False)
                 coords = pygame.Rect(y, x, self.size, self.size)
                 pygame.draw.rect(self.bg, ((250, 250, 250)), coords)
-
-            for t in self.targets:
-                x, y = self.indx2coord(t, center=True)
-                coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
-                pygame.draw.rect(self.bg, (0, 204, 102), coords)
+            for n in range(self.nagents):
+                for t in self.targets[n]:
+                    x, y = self.indx2coord(t, center=True)
+                    coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
+                    pygame.draw.rect(self.bg, (0, 204, 102), coords)
 
                 # Draw Wall in black color.
-            for s in self.edges:
-                (x, y) = self.indx2coord(s)
-                coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
-                coords = pygame.Rect(y, x, self.size, self.size)
-                pygame.draw.rect(self.bg, (192, 192, 192), coords)  # the obstacles are in color grey
+            # for s in self.edges:
+            #     (x, y) = self.indx2coord(s)
+            #     coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
+            #     coords = pygame.Rect(y, x, self.size, self.size)
+            #     pygame.draw.rect(self.bg, (192, 192, 192), coords)  # the obstacles are in color grey
 
             for s in self.obstacles:
                 (x, y) = self.indx2coord(s)
@@ -336,11 +392,18 @@ class Gridworld():
             color = {'sand': (223, 225, 179), 'gravel': (255, 255, 255), 'grass': (211, 255, 192),
                      'pavement': (192, 255, 253),'deterministic': (255,255,255)}
             for s in range(self.nstates):
-                if s not in self.edges and s not in self.targets and s not in self.obstacles:
+                if not any(s in x for x in self.targets) and s not in self.obstacles and not any(s in x for x in self.colorstates):
                     (x, y) = self.indx2coord(s)
                     coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
                     coords = pygame.Rect(y, x, self.size, self.size)
                     pygame.draw.rect(self.bg, color[self.getStateRegion(s)], coords)  # the obstacles are in color grey
+            statecols = [(0,0,0),(150,150,150)]
+            for i in range(len(self.colorstates)):
+                for s in self.colorstates[i]:
+                    if not any(s in x for x in self.targets) and s not in self.obstacles:
+                        (x, y) = self.indx2coord(s)
+                        coords = pygame.Rect(y, x, self.size, self.size)
+                        pygame.draw.rect(self.bg, statecols[i], coords)  # the obstacles are in color grey
 
         self.bg_rendered = True  # don't render again unless flag is set
         self.surface.blit(self.bg, (0, 0))

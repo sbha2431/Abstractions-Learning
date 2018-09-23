@@ -60,51 +60,51 @@ V,policy = mdp.T_step_value_iteration(R)
 print V,policy
 
 
-## Abstracted MDP
-states = {1,7}
-acts = {'N','S','E','W'}
-transitions = set() #transitions are: (s,a,s',p)
-transitions.add((1,'N',1,1))
-transitions.add((1,'S',1,0.8))
-transitions.add((1,'S',7,0.2))
-transitions.add((1,'E',1,1))
-transitions.add((1,'W',1,1))
-transitions.add((7,'N',7,1))
-transitions.add((7,'S',7,1))
-transitions.add((7,'E',7,1))
-transitions.add((7,'W',7,1))
-mdp = MDP(states,acts,transitions)
-
-Rs[1] = 1
-Rs[7] = 2
-
-R = dict(((s,a),Rs[s]) for (s,a,t) in mdp.transitions)
-V,policy = mdp.T_step_value_iteration(R)
-print V,policy
-
-## Abstracted MDP 2
-states = {1,2,3,7}
-acts = {'N','S','E','W'}
-transitions = set() #transitions are: (s,a,s',p)
-transitions.add((1,'N',1,1))
-transitions.add((1,'S',1,1))
-transitions.add((1,'E',2,1))
-transitions.add((1,'W',1,1))
-
-transitions.add((2,'N',2,1))
-transitions.add((2,'S',1,1))
-transitions.add((2,'E',2,1))
-transitions.add((1,'W',1,1))
-
-transitions.add((7,'N',7,1))
-transitions.add((7,'S',7,1))
-transitions.add((7,'E',7,1))
-transitions.add((7,'W',7,1))
-mdp = MDP(states,acts,transitions)
-
-Rs[1] = 1
-Rs[7] = 2
-
-R = dict(((s,a),Rs[s]) for (s,a,t) in mdp.transitions)
-V,policy = mdp.T_step_value_iteration(R)
-print V,policy
+# ## Abstracted MDP
+# states = {1,7}
+# acts = {'N','S','E','W'}
+# transitions = set() #transitions are: (s,a,s',p)
+# transitions.add((1,'N',1,1))
+# transitions.add((1,'S',1,0.8))
+# transitions.add((1,'S',7,0.2))
+# transitions.add((1,'E',1,1))
+# transitions.add((1,'W',1,1))
+# transitions.add((7,'N',7,1))
+# transitions.add((7,'S',7,1))
+# transitions.add((7,'E',7,1))
+# transitions.add((7,'W',7,1))
+# mdp = MDP(states,acts,transitions)
+#
+# Rs[1] = 1
+# Rs[7] = 2
+#
+# R = dict(((s,a),Rs[s]) for (s,a,t) in mdp.transitions)
+# V,policy = mdp.T_step_value_iteration(R)
+# print V,policy
+#
+# ## Abstracted MDP 2
+# states = {1,2,3,7}
+# acts = {'N','S','E','W'}
+# transitions = set() #transitions are: (s,a,s',p)
+# transitions.add((1,'N',1,1))
+# transitions.add((1,'S',1,1))
+# transitions.add((1,'E',2,1))
+# transitions.add((1,'W',1,1))
+#
+# transitions.add((2,'N',2,1))
+# transitions.add((2,'S',1,1))
+# transitions.add((2,'E',2,1))
+# transitions.add((1,'W',1,1))
+#
+# transitions.add((7,'N',7,1))
+# transitions.add((7,'S',7,1))
+# transitions.add((7,'E',7,1))
+# transitions.add((7,'W',7,1))
+# mdp = MDP(states,acts,transitions)
+#
+# Rs[1] = 1
+# Rs[7] = 2
+#
+# R = dict(((s,a),Rs[s]) for (s,a,t) in mdp.transitions)
+# V,policy = mdp.T_step_value_iteration(R)
+# print V,policy
