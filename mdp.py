@@ -77,7 +77,7 @@ class MDP(NFA):
             U = U1.copy()
             delta = 0
             for s in self.states:
-                U1[s] = max([sum([self.prob_delta(s,a,s1) * (U[s1] + R[s, a])
+                U1[s] = max([sum([self.prob_delta(s,a,s1) * (U[s1] + R[s, a,s1])
                                   for s1 in self.post(s, a)])]
                             for a in self.available(s))[0]
                 delta = max(delta, abs(U1[s] - U[s]))
@@ -86,7 +86,7 @@ class MDP(NFA):
         for s in self.states:
             Vmax = dict()
             for a in self.available(s):
-                Vmax[a] = [sum([self.prob_delta(s,a,s1) * (U[s1] + R[s, a])
+                Vmax[a] = [sum([self.prob_delta(s,a,s1) * (U[s1] + R[s, a,s1])
                                 for s1 in self.post(s, a)])][0]
             maxV = max(Vmax.values())
             for a in Vmax.keys():
@@ -108,6 +108,20 @@ class MDP(NFA):
                  break
         policy = self.best_policy(U)
         return policy
+
+    def write_to_file(self,filename,initial):
+        file = open(filename, 'w')
+        self._prepare_post_cache()
+        file.write('|S| = {}\n'.format(len(self.states)))
+        file.write('|A| = {}\n'.format(len(self.alphabet)))
+        file.write('s0 = {}\n'.format(initial))
+        file.write('s,a,t,p\n')
+        for s in self.states:
+            for a in self.available(s):
+                for t in self.post(s,a):
+                    file.write('{},{},{},{}\n'.format(s,a,t,self.prob_delta(s,a,t)))
+
+
 
 
     # def E_step_value_iteration(self,R,
