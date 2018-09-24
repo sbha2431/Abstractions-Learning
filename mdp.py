@@ -196,8 +196,9 @@ class MDP(NFA):
                         acts.add(act)
                 Vstate1[s] = optimal
                 policyT[s] = acts
-                e = abs(max([Vstate1[s] -
-                             Vstate[s] for s in self.states]))  # the abs error
+            e = abs(max([Vstate1[s] -
+                         Vstate[s] for s in self.states]))  # the abs error
+            # print e
                 # print "iteration: {} and the state
                 # value is {}".format(t, Vstate1)
         return Vstate1, policyT

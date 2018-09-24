@@ -4,12 +4,12 @@ import numpy as np
 from mdp import MDP
 #gridworld example
 
-nrows = 3
-ncols = 3
+nrows = 10
+ncols = 10
 initial = [3]
 moveobstacles = [4]
-targets = [[]]
-obstacles = []
+targets = [[77,78,79,87,88,89,97,98,99]]
+obstacles = [25,26,27,35,36,37,46,47,52,53,62,63,72,72,73]
 
 regionkeys = {'pavement','gravel','grass','sand','deterministic'}
 regions = dict.fromkeys(regionkeys,{-1})
@@ -18,11 +18,10 @@ regions['sand']= range(nrows*ncols)
 gwg = Gridworld(initial, nrows, ncols, 1, targets, obstacles,moveobstacles,regions)
 gwg.render()
 gwg.draw_state_labels()
-gwg.mdp.available(1)
 #
 states = range(gwg.nstates)
 # alphabet = [0,2] #north, east
-alphabet = [1,3] # south, west
+alphabet = [0,1,2,3] # south, west
 transitions = []
 for s in states:
     for a in alphabet:
@@ -30,18 +29,40 @@ for s in states:
             p = gwg.prob[gwg.actlist[a]][s][t]
             transitions.append((s, alphabet.index(a), t, p))
 
-mdp1 = MDP(states, alphabet,transitions)
+mdp = MDP(states, alphabet,transitions)
+V, policyT = mdp.max_reach_prob(set(targets[0]), epsilon=0.0001)
+V, policyT1 = mdp.max_reach_prob(set([80,81,90,91]), epsilon=0.0001)
+agentbehaviours = [policyT,policyT1]
 
-states = range(gwg.nstates)
-alphabet = [0,2] #north, east
+for ab in agentbehaviours:
+    for s in states:
+        for a in ab[s]:
+            tempdict = dict([(s, a, t),0.0] for t in states)
+            for t in states:
+                p = gwg.prob[gwg.actlist[a]][s][t]
+                tempdict[(s, a, t)] += p
+            for t in states:
+                transitions.append((s, agentbehaviours.index(ab), t, tempdict[(s, a, t)]))
+mdp1 = MDP(states,alphabet=range(2),transitions=transitions)
+
+
+R = dict([(s,a,next_s),0.0] for s in mdp.states for a in mdp.available(s) for next_s in mdp.post(s,a) )
+R.update([(s,a,next_s),1.0] for s in mdp.states  for a in mdp.available(s) for next_s in mdp.post(s,a) if next_s in targets[0] and s not in targets[0])
+V, policyT = mdp.T_step_value_iteration(R,T=20)
+policyT1 = dict([s,set(range(gwg.nactions))] for s in mdp.states for a in mdp.available(s))
+agentbehaviours = [policyT1,policyT]
 transitions = []
-for s in states:
-    for a in alphabet:
-        for t in states: #np.nonzero(gwg.prob[gwg.actlist[a]][s])[0]:
-            p = gwg.prob[gwg.actlist[a]][s][t]
-            transitions.append((s, alphabet.index(a), t, p))
+for ab in agentbehaviours:
+    for s in states:
+        for a in ab[s]:
+            tempdict = dict([(s, a, t),0.0] for t in states)
+            for t in states:
+                p = gwg.prob[gwg.actlist[a]][s][t]
+                tempdict[(s, a, t)] += p
+            for t in states:
+                transitions.append((s, agentbehaviours.index(ab), t, tempdict[(s, a, t)]))
+mdp2 = MDP(states,alphabet=range(2),transitions=transitions)
 
-mdp2 = MDP(states, alphabet,transitions)
 # mdp.write_to_file('Class2.txt',initial[0])
 # a = 1
 
