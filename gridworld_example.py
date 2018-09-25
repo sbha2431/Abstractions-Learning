@@ -25,7 +25,7 @@ alphabet = [0,1,2,3] # south, west
 transitions = []
 for s in states:
     for a in alphabet:
-        for t in states:  # np.nonzero(gwg.prob[gwg.actlist[a]][s])[0]:
+        for t in np.nonzero(gwg.prob[gwg.actlist[a]][s])[0]:
             p = gwg.prob[gwg.actlist[a]][s][t]
             transitions.append((s, alphabet.index(a), t, p))
 
@@ -33,16 +33,17 @@ mdp = MDP(states, alphabet,transitions)
 V, policyT = mdp.max_reach_prob(set(targets[0]), epsilon=0.0001)
 V, policyT1 = mdp.max_reach_prob(set([80,81,90,91]), epsilon=0.0001)
 agentbehaviours = [policyT,policyT1]
-
+transitions = []
 for ab in agentbehaviours:
     for s in states:
+        transdict = dict([(s, agentbehaviours.index(ab), t), 0.0] for t in states)
         for a in ab[s]:
-            tempdict = dict([(s, a, t),0.0] for t in states)
-            for t in states:
+            # tempdict = dict([(s, a, t),0.0] for t in states)
+            for t in np.nonzero(gwg.prob[gwg.actlist[a]][s])[0]:
                 p = gwg.prob[gwg.actlist[a]][s][t]
-                tempdict[(s, a, t)] += p
-            for t in states:
-                transitions.append((s, agentbehaviours.index(ab), t, tempdict[(s, a, t)]))
+                transdict[(s, agentbehaviours.index(ab), t)] += p*1.0/len(ab[s])
+        for t in states:
+            transitions.append((s, agentbehaviours.index(ab), t, transdict[(s, agentbehaviours.index(ab), t)]))
 mdp1 = MDP(states,alphabet=range(2),transitions=transitions)
 
 
@@ -54,17 +55,18 @@ agentbehaviours = [policyT1,policyT]
 transitions = []
 for ab in agentbehaviours:
     for s in states:
+        transdict = dict([(s, agentbehaviours.index(ab), t), 0.0] for t in states)
         for a in ab[s]:
-            tempdict = dict([(s, a, t),0.0] for t in states)
-            for t in states:
+            # tempdict = dict([(s, a, t),0.0] for t in states)
+            for t in np.nonzero(gwg.prob[gwg.actlist[a]][s])[0]:
                 p = gwg.prob[gwg.actlist[a]][s][t]
-                tempdict[(s, a, t)] += p
-            for t in states:
-                transitions.append((s, agentbehaviours.index(ab), t, tempdict[(s, a, t)]))
+                transdict[(s, agentbehaviours.index(ab), t)] += p*1.0/len(ab[s])
+        for t in states:
+            transitions.append((s, agentbehaviours.index(ab), t, transdict[(s, agentbehaviours.index(ab), t)]))
 mdp2 = MDP(states,alphabet=range(2),transitions=transitions)
 
-# mdp.write_to_file('Class2.txt',initial[0])
-# a = 1
+mdp1.write_to_file('Class1.txt',initial[0],targets=set(targets[0]))
+mdp2.write_to_file('Class2.txt',initial[0],targets=set(targets[0]))
 
 transitions = []
 alphabet = {0,1}
@@ -74,7 +76,7 @@ for line in file:
     l = line.split()
     if l[0] != 'b':
         if '|S|' in l[0]:
-            states = range(int(l[0][4:6]))
+            states = range(int(l[0][4:]))
         elif l[0]== 'Target':
             l = l[2][1:len(l[2])]
             l = l.split(',')
@@ -119,13 +121,14 @@ c = 0
 curr_b = (0.5,0.5)
 groundmdp = mdp2
 allmdps = [mdp1,mdp2]
+cost_dict = {0:1,1:5}
 while True:
     curr_b_s = beliefMap[(curr_s,curr_b,c)]
     if curr_b_s in accepting_states:
         break
     a = P[curr_b_s].pop()
     next_s = mdp2.sample(curr_s,a)
-    c+=1
+    c+=cost_dict[a]
     b = [0,0]
     for i in range(2):
         b[i] = allmdps[i].prob_delta(curr_s,a,next_s)*curr_b[i]/(sum([allmdps[j].prob_delta(curr_s,a,next_s)*curr_b[j] for j in range(2) ]))

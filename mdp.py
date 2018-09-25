@@ -109,17 +109,25 @@ class MDP(NFA):
         policy = self.best_policy(U)
         return policy
 
-    def write_to_file(self,filename,initial):
+    def write_to_file(self,filename,initial,targets=set()):
         file = open(filename, 'w')
         self._prepare_post_cache()
         file.write('|S| = {}\n'.format(len(self.states)))
         file.write('|A| = {}\n'.format(len(self.alphabet)))
         file.write('s0 = {}\n'.format(initial))
-        file.write('s,a,t,p\n')
+        if len(targets)>0:
+            stri = 'targets = ('
+            for t in targets:
+                stri += '{} '.format(t)
+            stri = stri[:-1]
+            stri+=')\n'
+            file.write(stri)
+
+        file.write('s a t p\n')
         for s in self.states:
             for a in self.available(s):
                 for t in self.post(s,a):
-                    file.write('{},{},{},{}\n'.format(s,a,t,self.prob_delta(s,a,t)))
+                    file.write('{} {} {} {}\n'.format(s,a,t,self.prob_delta(s,a,t)))
 
 
 
