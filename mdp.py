@@ -130,10 +130,6 @@ class MDP(NFA):
                     file.write('{} {} {} {}\n'.format(s,a,t,self.prob_delta(s,a,t)))
 
 
-
-
-
-
     # def E_step_value_iteration(self,R,
     #                     epsilon=0.0001, gamma=0.9):
     #     policyT = dict([])

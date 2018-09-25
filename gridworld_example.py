@@ -2,12 +2,14 @@ __author__ = 'sudab'
 from gridworld import Gridworld
 import numpy as np
 from mdp import MDP
+from tqdm import tqdm
+
 #gridworld example
 
 nrows = 10
 ncols = 10
 initial = [3]
-moveobstacles = [4]
+moveobstacles = []
 targets = [[77,78,79,87,88,89,97,98,99]]
 obstacles = [25,26,27,35,36,37,46,47,52,53,62,63,72,72,73]
 
@@ -72,7 +74,8 @@ transitions = []
 alphabet = {0,1}
 accepting_states = set()
 file = open('beliefMDP.txt', 'r')
-for line in file:
+print 'Reading MDP'
+for line in tqdm(file):
     l = line.split()
     if l[0] != 'b':
         if '|S|' in l[0]:
@@ -84,25 +87,30 @@ for line in file:
         else:
             trans = map(int,l[0:3])
             transitions.append((trans[0],trans[1],trans[2],float(l[3])))
+
+
 mdpb = MDP(states, alphabet,transitions)
-for s in states:
+for s in tqdm(states):
     for a in alphabet:
         if a not in mdpb.available(s):
             transitions.append((s,a,s,1))
+print 'creating belief MDP'
 mdp = MDP(states, alphabet,transitions)
-
+# mdp.write_to_file('truebeliefMDP.txt',initial=initial[0],targets=accepting_states)
+print 'Constructing reward matrix for belief MDP'
 R = dict([(s,a,next_s),0.0] for s in mdp.states for a in mdp.available(s) for next_s in mdp.post(s,a) )
 R.update([(s,a,next_s),1.0] for s in mdp.states  for a in mdp.available(s) for next_s in mdp.post(s,a) if next_s in accepting_states and s not in accepting_states)
-print R
-
-V,P =  mdp.T_step_value_iteration(R,5)
+# print R
+# Solving belief
+print('Solving belief MDP')
+V,P =  mdp.T_step_value_iteration(R,20)
 # print P
 # print V
 
-
+print 'Simulating Belief'
 beliefMap = dict()
 file = open('beliefStateMapping.txt', 'r')
-for line in file:
+for line in tqdm(file):
     l = line.split(':')
     if '(s b c)' not in l[0]:
         ns = int(l[1])
@@ -114,7 +122,7 @@ for line in file:
         l = l.split(' ')
         b = map(float,l)
         beliefMap[(s,tuple(b),c)] = ns
-print beliefMap
+# print beliefMap
 
 curr_s = initial[0]
 c = 0
@@ -127,11 +135,14 @@ while True:
     if curr_b_s in accepting_states:
         break
     a = P[curr_b_s].pop()
-    next_s = mdp2.sample(curr_s,a)
+    next_s = groundmdp.sample(curr_s,a)
+    gwg.current = [next_s]
+    gwg.render()
     c+=cost_dict[a]
     b = [0,0]
     for i in range(2):
         b[i] = allmdps[i].prob_delta(curr_s,a,next_s)*curr_b[i]/(sum([allmdps[j].prob_delta(curr_s,a,next_s)*curr_b[j] for j in range(2) ]))
     curr_b = tuple(b)
+    print curr_b
 
 print curr_b
