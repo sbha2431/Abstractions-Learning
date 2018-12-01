@@ -10,16 +10,16 @@ def get_indices_of_k_smallest(arr, k):
 
 #gridworld example
 
-nrows = 10
-ncols = 10
+nrows = 7
+ncols = 5
 initial = [3]
 moveobstacles = []
-targets = [[77,78,79,87,88,89,97,98,99]]
-obstacles = [25,26,27,35,36,37,46,47,52,53,62,63,72,72,73]
+targets = [[]]
+obstacles = []
 
 regionkeys = {'pavement','gravel','grass','sand','deterministic'}
 regions = dict.fromkeys(regionkeys,{-1})
-regions['sand']= range(nrows*ncols)
+regions['pavement']= range(nrows*ncols)
 
 gwg = Gridworld(initial, nrows, ncols, 1, targets, obstacles,moveobstacles,regions)
 gwg.render()

@@ -75,7 +75,7 @@ class Gridworld():
         for ground in self.regions.keys():
             for direction in ['N', 'S', 'W', 'E']:
                 if ground == 'pavement':
-                    mass = random.choice(range(90, 95))
+                    mass = random.choice(range(95, 98))
                     massleft = 100 - mass
                     oneleft = random.choice(range(1, massleft))
                     twoleft = massleft - oneleft
