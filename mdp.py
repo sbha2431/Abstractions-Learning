@@ -94,20 +94,21 @@ class MDP(NFA):
                     policy[s].add(a)
         return U, policy
 
-    def E_step_value_iteration(self,R,
-                        epsilon=0.001, gamma=0.9):
-        U1 = dict([(s, 0) for s in self.states])
-        while True:
-            U = U1.copy()
-            delta = 0
-            for s in self.states:
-                U1[s] = max([sum([self.prob_delta(s,a,next_s) * (gamma*U[next_s] + R[s,a,next_s]) for next_s in self.post(s,a)])
-                                            for a in self.available(s)])
-                delta = max(delta, abs(U1[s] - U[s]))
-            if delta < epsilon * (1 - gamma) / gamma:
-                 break
-        policy = self.best_policy(U)
-        return policy
+    # def E_step_value_iteration(self,R,
+    #                     epsilon=0.1, gamma=0.9):
+    #     U1 = dict([(s, 0) for s in self.states])
+    #     while True:
+    #         U = U1.copy()
+    #         delta = 0
+    #         for s in self.states:
+    #             U1[s] = max([sum([self.prob_delta(s,a,next_s) * (gamma*U[next_s] + R[s,a,next_s]) for next_s in self.post(s,a)])
+    #                                         for a in self.available(s)])
+    #             delta = max(delta, abs(U1[s] - U[s]))
+    #             print(delta)
+    #         if delta < epsilon * (1 - gamma) / gamma:
+    #              break
+    #     policy = self.best_policy(U)
+    #     return policy
 
     def write_to_file(self,filename,initial,targets=set()):
         file = open(filename, 'w')
@@ -130,39 +131,40 @@ class MDP(NFA):
                     file.write('{} {} {} {}\n'.format(s,a,t,self.prob_delta(s,a,t)))
 
 
-    # def E_step_value_iteration(self,R,
-    #                     epsilon=0.0001, gamma=0.9):
-    #     policyT = dict([])
-    #     Vstate1 = dict([])
-    #     Vstate1.update({s: 0 for s in self.states})
-    #     e = 1
-    #     Q = dict([])
-    #     while e > epsilon:
-    #         Vstate = Vstate1.copy()
-    #         for s in set(self.states):
-    #             acts = self.available(s)
-    #             optimal = 0
-    #             act = None
-    #             for a in self.available(s):
-    #                 Q[(s, a)] = sum([self.prob_delta(s, a, next_s) *
-    #                                  (gamma*Vstate[next_s] + R[s,a])
-    #                                  for next_s in self.post(s, a)])
-    #                 if Q[(s, a)] >= optimal:
-    #                     optimal = Q[(s, a)]
-    #                     act = a
-    #                 else:
-    #                     pass
-    #             acts = set([])
-    #             for act in self.available(s):
-    #                 if Q[(s, act)] == optimal:
-    #                     acts.add(act)
-    #             Vstate1[s] = optimal
-    #             policyT[s] = acts
-    #             e = abs(max([Vstate1[s] -
-    #                          Vstate[s] for s in self.states]))  # the abs error
-    #             # print "iteration: {} and the state
-    #             # value is {}".format(t, Vstate1)
-    #     return Vstate1, policyT
+    def E_step_value_iteration(self,R,
+                        epsilon=0.0001, gamma=0.9):
+        policyT = dict([])
+        Vstate1 = dict([])
+        Vstate1.update({s: 0 for s in self.states})
+        e = 1
+        Q = dict([])
+        while e > epsilon:
+            Vstate = Vstate1.copy()
+            for s in set(self.states):
+                acts = self.available(s)
+                optimal = 0
+                act = None
+                for a in self.available(s):
+                    Q[(s, a)] = sum([self.prob_delta(s, a, next_s) *
+                                     (gamma*Vstate[next_s] + R[s,a,next_s])
+                                     for next_s in self.post(s, a)])
+                    if Q[(s, a)] >= optimal:
+                        optimal = Q[(s, a)]
+                        act = a
+                    else:
+                        pass
+                acts = set([])
+                for act in self.available(s):
+                    if Q[(s, act)] == optimal:
+                        acts.add(act)
+                Vstate1[s] = optimal
+                policyT[s] = acts
+            e = abs(max([Vstate1[s] -
+                         Vstate[s] for s in self.states]))  # the abs error
+            print(e)
+                # print "iteration: {} and the state
+                # value is {}".format(t, Vstate1)
+        return Vstate1, policyT
 
     def max_reach_prob(self, target,epsilon=0.0001):
         """
@@ -206,5 +208,20 @@ class MDP(NFA):
                 # print "iteration: {} and the state
                 # value is {}".format(t, Vstate1)
         return Vstate1, policyT
+
+    def computeTrace(self,init,policy,T,targ = None):
+        s = init
+        trace = dict()
+        t = 0
+        trace[t] = s
+        while t < T:
+            act = random.choice(list(policy[s]))
+            ns = self.sample(s,act)
+            t += 1
+            s = ns
+            trace[t] = ns
+            if ns == targ:
+                return trace
+
 
 
