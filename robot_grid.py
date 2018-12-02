@@ -2,32 +2,29 @@ from gridworld import Gridworld
 import numpy as np
 from mdp import MDP
 from tqdm import tqdm
-import simplejson as json
 def get_indices_of_k_smallest(arr, k):
     idx = np.argpartition(arr.ravel(), k)
     return tuple(np.array(np.unravel_index(idx, arr.shape))[:, range(min(k, 0), max(k, 0))])
 
-def writeJson(outfile,dict=None):
-    j = json.dumps(dict, indent=1)
-    f = open(outfile, 'w')
-    print >> f, j
-    f.close()
+def writeJson(outfile,my_dict=None):
+    with open(outfile, 'w') as f:
+        [f.write('{0},{1}\n'.format(key, value)) for key, value in my_dict.items()]
 
-num_x = 10
-num_y = 10
+num_x = 20
+num_y = 20
 num_t = 20
-max_x = 1000
-min_x = -1000
-max_y = 1000
-min_y = -1000
+max_x = 600
+min_x = -600
+max_y = 600
+min_y = -600
 xrange = np.linspace(min_x,max_x,num_x)
 yrange = np.linspace(min_y,max_y,num_y)
 trange = np.linspace(0+360.0/num_t,360,num_t)
-traterange = [-5,0,5]
+traterange = [-2,0,2]
 transitions = []
 states = []
-dt = 2
-v = 20
+dt = 4
+v = 25
 
 ballpos = (xrange[4],yrange[4])
 targ_angle = trange[4]
@@ -46,6 +43,9 @@ for x in tqdm(xrange):
                 if (x, y, t) == ballpos + tuple({targ_angle}):
                     transitions.append(((x, y, t), trate, (x, y, t), 1.0))
                     R[((x, y, t), trate, (x, y, t))] = 0
+                elif (abs(x) > 450 or abs(y) > 450) or (y >= ballpos[1] and abs(x) <= 300):
+                    transitions.append(((x, y, t), trate, (x, y, t), 1.0))
+                    R[((x, y, t), trate, (x, y, t))] = -10
                 else:
                     transdict = dict([((x, y, t), trate, (xnew, ynew, tnew)), 0.0] for xnew in xrange for ynew in yrange for tnew in trange)
                     next_t =  t + dt*trate
@@ -67,17 +67,15 @@ for x in tqdm(xrange):
                         for y2 in yrange:
                             for t2 in trange:
                                 if transdict[(x,y,t),trate,(x2,y2,t2)] > 0:
-                                    if abs(x2) > 800 or abs(y2) > 800 or (y2>ballpos[1] and abs(x2) < 500):
-                                        R[((x, y, t), trate, (x2, y2, t2))] = -10
-                                    # elif (x2, y2, t2) == ballpos + tuple({targ_angle}):
-                                    #     R[((x, y, t), trate, (x2, y2, t2))] = 1
-                                    # elif (x, y, t) == ballpos + tuple({targ_angle}):
-                                    #     R[((x, y, t), trate, (x2, y2, t2))] = 0
-                                    else:
-                                        R[((x, y, t), trate, (x2, y2, t2))] = -1
+                                #     if abs(x2) > 800 or abs(y2) > 800 or (y2>ballpos[1] and abs(x2) < 500):
+                                #         R[((x, y, t), trate, (x2, y2, t2))] = -10
+                                #     # elif (x2, y2, t2) == ballpos + tuple({targ_angle}):
+                                #     #     R[((x, y, t), trate, (x2, y2, t2))] = 1
+                                #     # elif (x, y, t) == ballpos + tuple({targ_angle}):
+                                #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
+                                #     else:
+                                    R[((x, y, t), trate, (x2, y2, t2))] = -1
                                     transitions.append(((x,y,t),trate,(x2,y2,t2),transdict[(x,y,t),trate,(x2,y2,t2)]))
-
-
 
 alphabet = traterange
 robot_mdp = MDP(states,alphabet,transitions)
@@ -97,7 +95,7 @@ robot_mdp = MDP(states,alphabet,transitions)
 #                                 R[((x, y, t), trate, (x2, y2, t2))] = 10
 
 print('Computing policy...')
-V, policy = robot_mdp.T_step_value_iteration(R,T=20)
+V, policy = robot_mdp.max_reach_prob({ballpos + tuple({targ_angle})})
 print policy
 print V
-writeJson('robotpolicy.json',policy)
+writeJson('robotpolicy_E',policy)

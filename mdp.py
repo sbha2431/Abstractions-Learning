@@ -2,6 +2,7 @@
 from nfa import NFA
 import numpy as np
 import random
+from tqdm import tqdm
 
 class MDP(NFA):
     def __init__(self, states, alphabet, transitions=[]):
@@ -130,9 +131,8 @@ class MDP(NFA):
                 for t in self.post(s,a):
                     file.write('{} {} {} {}\n'.format(s,a,t,self.prob_delta(s,a,t)))
 
-
     def E_step_value_iteration(self,R,
-                        epsilon=0.0001, gamma=0.9):
+                        epsilon=0.01, gamma=0.9):
         policyT = dict([])
         Vstate1 = dict([])
         Vstate1.update({s: 0 for s in self.states})
@@ -140,9 +140,9 @@ class MDP(NFA):
         Q = dict([])
         while e > epsilon:
             Vstate = Vstate1.copy()
-            for s in set(self.states):
+            for s in tqdm(self.states):
                 acts = self.available(s)
-                optimal = 0
+                optimal = -50
                 act = None
                 for a in self.available(s):
                     Q[(s, a)] = sum([self.prob_delta(s, a, next_s) *
@@ -183,7 +183,7 @@ class MDP(NFA):
         Q = dict([])
         while e > epsilon:
             Vstate = Vstate1.copy()
-            for s in set(self.states) - Win:
+            for s in tqdm(set(self.states) - Win):
                 acts = self.available(s)
                 optimal = 0
                 act = None
