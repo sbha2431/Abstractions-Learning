@@ -128,4 +128,4 @@ V, policy = robot_mdp.max_reach_prob(targstates)
 # V, policy = robot_mdp.T_step_value_iteration(R,T=10)
 print policy
 print V
-writeJson('robotpolicy_E_fine5',policy)
+writeJson('robotpolicy_E_fine4',policy)
