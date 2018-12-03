@@ -17,31 +17,31 @@ num_t = 10
 max_x = 800
 min_x = -800
 max_y = 800
-min_y = -400
+min_y = -600
 xrange = [e for e in range(min_x,max_x+1,100)]
 yrange =[e for e in range(min_y,max_y+1,100)]
 trange = [e for e in range(0,180+1,10)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright'}
 
-traterange = [-3,0,3]
-xraterange = [-25,0,25]
-yraterange = [-25,0,25]
+traterange = [-4,0,4]
+xraterange = [-20,0,20]
+yraterange = [-20,0,20]
+v = 25
 
-actdict = {'forward':(25,0,0),
-           'back':(-25,0,0),
-           'left':(0,-25,0),
-           'right':(0,25,0),
+actdict = {'right':(v,0,0),
+           'left':(-v,0,0),
+           'back':(0,-v,0),
+           'forward':(0,v,0),
            'stop':(0,0,0),
-           'turnleft':(0,0,8),
-           'turnright':(0,0,-8),
-           'forwardleft':(25,-25,0),
-           'forwardright':(25.25,0)
+           'turnleft':(0,0,4),
+           'turnright':(0,0,-4),
+           'forwardleft':(v,-v,0),
+           'forwardright':(v,v,0)
            }
 
 transitions = []
 states = []
 dt = 4.1
-v = 25
 
 ballpos = (0,0)
 targstates = set()
@@ -70,9 +70,9 @@ for x in tqdm(xrange):
                         R[((x, y, t), action, (x, y, t))] = 0
                     transdict = dict([((x, y, t), action, (xnew, ynew, tnew)), 0.0] for xnew in xrange for ynew in yrange for tnew in trange)
                     next_t =  max(min(t + dt*trate,180),0)
-                    next_t = next_t % 360
-                    next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((next_t-t)/2)))+yrate*dt*np.sin(np.radians((next_t-t)/2)),min_x)
-                    next_y = max(min(max_y,y + yrate*dt*np.cos(np.radians((next_t-t)/2))+xrate*dt*np.sin(np.radians((next_t-t)/2))),min_y)
+                    # next_t = next_t % 360
+                    next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((next_t+t)/2)))+yrate*dt*np.sin(np.radians((next_t+t)/2)),min_x)
+                    next_y = max(min(max_y,y + yrate*dt*np.cos(np.radians((next_t+t)/2))+xrate*dt*np.sin(np.radians(-(next_t+t)/2))),min_y)
                     xs = np.full((len(xrange)), next_x)
                     ys = np.full((len(yrange)), next_y)
                     ts = np.full((len(trange)), next_t)
@@ -128,4 +128,4 @@ V, policy = robot_mdp.max_reach_prob(targstates)
 # V, policy = robot_mdp.T_step_value_iteration(R,T=10)
 print policy
 print V
-writeJson('robotpolicy_E_fine3',policy)
+writeJson('robotpolicy_E_fine5',policy)

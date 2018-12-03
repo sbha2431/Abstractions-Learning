@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b7f36ee-f221-4bc3-aa29-35b8bec12cad" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/robotpolicy.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/mdp.py" afterPath="$PROJECT_DIR$/mdp.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/robot_grid.py" afterPath="$PROJECT_DIR$/robot_grid.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,7 +24,7 @@
       <file leaf-file-name="mdp.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/mdp.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2856">
+            <state relative-caret-position="529">
               <caret line="168" column="46" lean-forward="false" selection-start-line="168" selection-start-column="46" selection-end-line="168" selection-end-column="46" />
               <folding>
                 <element signature="e#1#20#0" expanded="true" />
@@ -38,8 +36,8 @@
       <file leaf-file-name="robot_grid.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/robot_grid.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="69" column="61" lean-forward="false" selection-start-line="69" selection-start-column="61" selection-end-line="69" selection-end-column="61" />
+            <state relative-caret-position="2210">
+              <caret line="130" column="30" lean-forward="false" selection-start-line="130" selection-start-column="30" selection-end-line="130" selection-end-column="30" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -47,11 +45,21 @@
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="robotpolicy_E_fine3" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine3">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1437">
+              <caret line="1827" column="18" lean-forward="true" selection-start-line="1827" selection-start-column="18" selection-end-line="1827" selection-end-column="18" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file leaf-file-name="robotpolicy_E_fine" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-51">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="178">
+              <caret line="147" column="14" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="14" />
               <folding />
             </state>
           </provider>
@@ -71,7 +79,7 @@
         <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine2">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="289">
-              <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+              <caret line="17" column="22" lean-forward="false" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -80,8 +88,8 @@
       <file leaf-file-name="parsefiles" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/parsefiles">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="238">
-              <caret line="14" column="39" lean-forward="true" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+            <state relative-caret-position="272">
+              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
               <folding>
                 <element signature="e#0#10#0" expanded="true" />
               </folding>
@@ -106,6 +114,9 @@
       <find>set([0])</find>
       <find>rig</find>
       <find>(0, 0</find>
+      <find>right</find>
+      <find>(300, -300, 50)</find>
+      <find>(300, -300, 60)</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -147,6 +158,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -162,7 +174,6 @@
         </subPane>
       </pane>
       <pane id="Scratches" />
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -428,7 +439,14 @@
       <option name="project" value="LOCAL" />
       <updated>1543729450199</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Completed example">
+      <created>1543806334673</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1543806334673</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView">
@@ -507,16 +525,11 @@
           <line>16</line>
           <option name="timeStamp" value="53" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/robot_grid.py</url>
-          <line>40</line>
-          <option name="timeStamp" value="54" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="55" />
+      <option name="time" value="57" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -570,14 +583,10 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/10x10_deterministicish" />
     <entry file="file://$PROJECT_DIR$/Learning.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1275">
           <caret line="91" column="25" lean-forward="false" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="25" />
-          <folding>
-            <element signature="e#22#41#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -592,9 +601,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="765">
           <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -611,7 +617,7 @@
         <state relative-caret-position="2535">
           <caret line="172" column="24" lean-forward="false" selection-start-line="172" selection-start-column="24" selection-end-line="172" selection-end-column="24" />
           <folding>
-            <element signature="e#21#52#0" expanded="true" />
+            <element signature="e#21#52#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -620,9 +626,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1275">
           <caret line="91" column="25" lean-forward="false" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="25" />
-          <folding>
-            <element signature="e#22#41#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -637,9 +640,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="765">
           <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -656,7 +656,7 @@
         <state relative-caret-position="2535">
           <caret line="172" column="24" lean-forward="true" selection-start-line="172" selection-start-column="24" selection-end-line="172" selection-end-column="24" />
           <folding>
-            <element signature="e#21#52#0" expanded="true" />
+            <element signature="e#21#52#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -665,9 +665,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1275">
           <caret line="91" column="25" lean-forward="false" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="25" />
-          <folding>
-            <element signature="e#22#41#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -682,9 +679,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="795">
           <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -693,7 +687,7 @@
         <state relative-caret-position="1635">
           <caret line="109" column="25" lean-forward="true" selection-start-line="109" selection-start-column="25" selection-end-line="109" selection-end-column="25" />
           <folding>
-            <element signature="e#21#52#0" expanded="true" />
+            <element signature="e#21#52#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -702,9 +696,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1445">
           <caret line="91" column="25" lean-forward="false" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="25" />
-          <folding>
-            <element signature="e#22#41#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -719,9 +710,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -773,9 +761,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1445">
           <caret line="91" column="25" lean-forward="false" selection-start-line="91" selection-start-column="25" selection-end-line="91" selection-end-column="25" />
-          <folding>
-            <element signature="e#22#41#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -783,7 +768,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-110922">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -791,7 +775,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="529">
           <caret line="2801" column="8" lean-forward="false" selection-start-line="2801" selection-start-column="8" selection-end-line="2801" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -799,7 +782,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="2622" column="8" lean-forward="false" selection-start-line="2622" selection-start-column="8" selection-end-line="2622" selection-end-column="8" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -807,7 +789,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="175">
           <caret line="973" column="0" lean-forward="false" selection-start-line="973" selection-start-column="0" selection-end-line="973" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -815,9 +796,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="546">
           <caret line="53" column="17" lean-forward="false" selection-start-line="53" selection-start-column="17" selection-end-line="53" selection-end-column="17" />
-          <folding>
-            <element signature="e#0#19#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -826,7 +804,7 @@
         <state relative-caret-position="1122">
           <caret line="66" column="26" lean-forward="false" selection-start-line="66" selection-start-column="26" selection-end-line="66" selection-end-column="26" />
           <folding>
-            <element signature="e#21#52#0" expanded="true" />
+            <element signature="e#21#52#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -835,7 +813,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="63" lean-forward="true" selection-start-line="0" selection-start-column="63" selection-end-line="0" selection-end-column="63" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -843,7 +820,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="2193">
           <caret line="134" column="32" lean-forward="false" selection-start-line="134" selection-start-column="32" selection-end-line="134" selection-end-column="32" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -851,7 +827,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="408">
           <caret line="24" column="51" lean-forward="false" selection-start-line="24" selection-start-column="51" selection-end-line="24" selection-end-column="51" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -859,33 +834,14 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="51" lean-forward="true" selection-start-line="9" selection-start-column="51" selection-end-line="9" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-51">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine2">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
-          <caret line="17" column="22" lean-forward="true" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
+          <caret line="17" column="22" lean-forward="false" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/mdp.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2856">
-          <caret line="168" column="46" lean-forward="false" selection-start-line="168" selection-start-column="46" selection-end-line="168" selection-end-column="46" />
-          <folding>
-            <element signature="e#1#20#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -897,10 +853,36 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="178">
+          <caret line="147" column="14" lean-forward="false" selection-start-line="147" selection-start-column="0" selection-end-line="147" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/robotpolicy_E_fine3">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1437">
+          <caret line="1827" column="18" lean-forward="true" selection-start-line="1827" selection-start-column="18" selection-end-line="1827" selection-end-column="18" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/mdp.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="168" column="46" lean-forward="false" selection-start-line="168" selection-start-column="46" selection-end-line="168" selection-end-column="46" />
+          <folding>
+            <element signature="e#1#20#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/parsefiles">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" column="39" lean-forward="true" selection-start-line="14" selection-start-column="39" selection-end-line="14" selection-end-column="39" />
+        <state relative-caret-position="272">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="e#0#10#0" expanded="true" />
           </folding>
@@ -909,8 +891,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/robot_grid.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="459">
-          <caret line="69" column="61" lean-forward="false" selection-start-line="69" selection-start-column="61" selection-end-line="69" selection-end-column="61" />
+        <state relative-caret-position="2210">
+          <caret line="130" column="30" lean-forward="false" selection-start-line="130" selection-start-column="30" selection-end-line="130" selection-end-column="30" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
