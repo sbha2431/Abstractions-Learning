@@ -166,7 +166,7 @@ class MDP(NFA):
                 # value is {}".format(t, Vstate1)
         return Vstate1, policyT
 
-    def max_reach_prob(self, target,epsilon=0.0001):
+    def max_reach_prob(self, target,epsilon=0.1):
         """
         infinite time horizon
         Value iteration: Vstate[s] the maximal probability of hitting the
@@ -204,7 +204,7 @@ class MDP(NFA):
                 policyT[s] = acts
             e = abs(max([Vstate1[s] -
                          Vstate[s] for s in self.states]))  # the abs error
-            # print e
+            print e
                 # print "iteration: {} and the state
                 # value is {}".format(t, Vstate1)
         return Vstate1, policyT
