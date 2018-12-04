@@ -29,8 +29,7 @@ class MDP(NFA):
         for t in self.post(state, action):
             prob.append(self.prob_delta(state, action, t))
 
-        next_state = np.random.choice(list(self.post(state, action)),
-                                      1, p=prob)[0]
+        next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
         return next_state
@@ -237,7 +236,7 @@ class MDP(NFA):
         trace[t] = s
         while t < T:
             print 't = ', t, 'state = ', s
-            act = policy[s].pop()
+            act = list(policy[s])[0]
             ns = self.sample(s,act)
             t += 1
             s = ns

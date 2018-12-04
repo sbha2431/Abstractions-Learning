@@ -151,7 +151,7 @@ print('Computing policy...')
 #                 R[(s, a, ns)] = 1
 #             else:
 #                 R[(s, a, ns)] = 0
-V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.1)
+V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.5)
 robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 print policy
 print V
