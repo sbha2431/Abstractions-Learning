@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="9b7f36ee-f221-4bc3-aa29-35b8bec12cad" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/robotpolicyfinegrid.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Code.iml" afterPath="$PROJECT_DIR$/.idea/Code.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/robot_grid.py" afterPath="$PROJECT_DIR$/robot_grid.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/robotpolicyfinegrid.txt" afterPath="$PROJECT_DIR$/robotpolicyfinegrid.txt" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -37,8 +34,8 @@
       <file leaf-file-name="robotpolicyfinegrid.txt" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/robotpolicyfinegrid.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
-              <caret line="29" column="32" lean-forward="true" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
+            <state relative-caret-position="0">
+              <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -81,6 +78,7 @@
         <option value="$PROJECT_DIR$/robotpolicy.txt" />
         <option value="$PROJECT_DIR$/parsefiles" />
         <option value="$PROJECT_DIR$/robot_grid.py" />
+        <option value="$PROJECT_DIR$/robotpolicyfinegrid.txt" />
       </list>
     </option>
   </component>
@@ -436,7 +434,14 @@
       <option name="project" value="LOCAL" />
       <updated>1543893712334</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Completed example">
+      <created>1543924952391</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1543924952391</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TodoView">
@@ -830,8 +835,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/robotpolicyfinegrid.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="29" column="32" lean-forward="true" selection-start-line="29" selection-start-column="32" selection-end-line="29" selection-end-column="32" />
+        <state relative-caret-position="0">
+          <caret line="0" column="16" lean-forward="false" selection-start-line="0" selection-start-column="16" selection-end-line="0" selection-end-column="16" />
           <folding />
         </state>
       </provider>
