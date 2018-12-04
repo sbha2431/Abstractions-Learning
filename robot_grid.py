@@ -19,9 +19,9 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,100)]
-yrange =[e for e in range(min_y,max_y+1,100)]
-trange = [e for e in range(0,180+1,15)]
+xrange = [e for e in range(min_x,max_x+1,50)]
+yrange =[e for e in range(min_y,max_y+1,50)]
+trange = [e for e in range(0,180+1,10)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
 traterange = [-4,0,4]
@@ -42,7 +42,7 @@ actdict = {'right':(0,v,0),
 
 transitions = []
 states = []
-dt = 5.1
+dt = 3.1
 
 ballpos = (0,0)
 targstates = set()
@@ -155,7 +155,7 @@ V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=
 # robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 print policy
 print V
-robot_mdp.policyTofile(policy,'robotpolicyfinegrid.txt')
+robot_mdp.policyTofile(policy,'robotpolicyfinestgrid.txt')
 
 
 
