@@ -142,7 +142,7 @@ class MDP(NFA):
             Vstate = Vstate1.copy()
             for s in tqdm(self.states - sink- targstates):
                 acts = self.available(s)
-                optimal = 0
+                optimal = -1000
                 act = None
                 for a in self.available(s):
                     Q[(s, a)] = sum([self.prob_delta(s, a, next_s) *
@@ -159,7 +159,7 @@ class MDP(NFA):
                         acts.add(act)
                 Vstate1[s] = optimal
                 policyT[s] = acts
-            e = max(abs([Vstate1[s] -
+            e = max(np.abs([Vstate1[s] -
                          Vstate[s] for s in self.states]))  # the abs error
             print(e)
         return Vstate1, policyT
@@ -234,7 +234,7 @@ class MDP(NFA):
         trace[t] = s
         while t < T:
             print 't = ', t, 'state = ', s
-            act = random.choice(list(policy[s]))
+            act = policy[s].pop()
             ns = self.sample(s,act)
             t += 1
             s = ns
