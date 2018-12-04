@@ -214,15 +214,18 @@ class MDP(NFA):
     def policyTofile(self,policy,outfile):
         file = open(outfile, 'w')
         file.write('policy = dict()\n')
-        for s in policy:
+        for s in self.states:
             x = -s[1]
             y = s[0]
             t = (s[2]-270)%360
             s2 = (x,y,t)
-            if 'stop' not in policy[s]:
-                file.write('policy[' + str(s2) + '] = ' + policy[s].pop() + '\n')
+            if s not in policy.keys():
+                file.write('policy[' + str(s2) + '] = stop\n')
             else:
-                file.write('policy['+str(s2)+'] = stop\n')
+                if 'stop' not in policy[s]:
+                    file.write('policy[' + str(s2) + '] = \'' + policy[s].pop() + '\'\n')
+                else:
+                    file.write('policy['+str(s2)+'] = stop\n')
         file.close()
 
 

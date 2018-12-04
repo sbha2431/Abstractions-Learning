@@ -1,6 +1,7 @@
 from gridworld import Gridworld
 import numpy as np
 from mdp import MDP
+import math
 from tqdm import tqdm
 
 def get_indices_of_k_smallest(arr, k):
@@ -18,20 +19,20 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,100)]
-yrange =[e for e in range(min_y,max_y+1,100)]
-trange = [e for e in range(0,180+1,15)]
-alphabet = {'forward','back','left','right','stop','turnleft','turnright'}
+xrange = [e for e in range(min_x,max_x+1,200)]
+yrange =[e for e in range(min_y,max_y+1,200)]
+trange = [e for e in range(0,180+1,30)]
+alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
 traterange = [-5,0,5]
 xraterange = [-20,0,20]
 yraterange = [-20,0,20]
 v = 20
 
-actdict = {'right':(v,0,0),
-           'left':(-v,0,0),
-           'back':(0,-v,0),
-           'forward':(0,v,0),
+actdict = {'right':(0,v,0),
+           'left':(0,-v,0),
+           'back':(-v,0,0),
+           'forward':(v,0,0),
            'stop':(0,0,0),
            'turnleft':(0,0,4),
            'turnright':(0,0,-4),
@@ -41,7 +42,7 @@ actdict = {'right':(v,0,0),
 
 transitions = []
 states = []
-dt = 6.1
+dt = 10.1
 
 ballpos = (0,0)
 targstates = set()
@@ -55,7 +56,7 @@ for x in tqdm(xrange):
     for y in yrange:
         for t in trange:
             states.append((x, y, t))
-            if (x, y, t) == (0, 0, 80):
+            if (x, y, t) == (-200, -200, 120):
                 asdf = 1
             for action in alphabet:
                 trate = actdict[action][2]
@@ -77,8 +78,13 @@ for x in tqdm(xrange):
                     transdict = dict([((x, y, t), action, (xnew, ynew, tnew)), 0.0] for xnew in xrange for ynew in yrange for tnew in trange)
                     next_t =  max(min(t + dt*trate,180),0)
                     # next_t = next_t % 360
-                    next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((next_t+t)/2)))+yrate*dt*np.sin(np.radians((next_t+t)/2)),min_x)
-                    next_y = max(min(max_y,y + yrate*dt*np.cos(np.radians((next_t+t)/2))+xrate*dt*np.sin(np.radians(-(next_t+t)/2))),min_y)
+                    # if action == 'left':
+                    #     next_x = max(min(max_x,x+xrate*dt*np.sin(np.radians((next_t+t)/2))),min_x)
+                    #     next_y = max(min(max_y,-1*xrate * dt * np.cos(np.radians((next_t + t) / 2))), min_y)
+
+
+                    next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((t)))+yrate*dt*np.sin(np.radians((t+t)/2))),min_x)
+                    next_y = max(min(max_y,y - yrate*dt*np.cos(np.radians((t))) + xrate*dt*np.sin(np.radians((t+t)/2))),min_y)
                     xs = np.full((len(xrange)), next_x)
                     ys = np.full((len(yrange)), next_y)
                     ts = np.full((len(trange)), next_t)
@@ -145,11 +151,12 @@ print('Computing policy...')
 #                 R[(s, a, ns)] = 1
 #             else:
 #                 R[(s, a, ns)] = 0
-V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.01)
+V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.1)
+robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 print policy
 print V
-robot_mdp.policyTofile(policy,'robotpolicyfinegrid.txt')
-robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
+robot_mdp.policyTofile(policy,'robotpolicycoarsegrid.txt')
+
 
 
 writeJson('robotpolicy_biggrid2',policy)
