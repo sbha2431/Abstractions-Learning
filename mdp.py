@@ -20,7 +20,7 @@ class MDP(NFA):
         return self._prob_cache[(s, a, t)]
 
     def sample(self, state, action):
-        """Sample the next state according to the current state, the action, and
+        """Sample the next state according to the current state, the action,  and
         the transition probability. """
         if action not in self.available(state):
             return None
@@ -29,8 +29,7 @@ class MDP(NFA):
         for t in self.post(state, action):
             prob.append(self.prob_delta(state, action, t))
 
-        next_state = np.random.choice(list(self.post(state, action)),
-                                      1, p=prob)[0]
+        next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
         return next_state
@@ -214,15 +213,18 @@ class MDP(NFA):
     def policyTofile(self,policy,outfile):
         file = open(outfile, 'w')
         file.write('policy = dict()\n')
-        for s in policy:
+        for s in self.states:
             x = -s[1]
             y = s[0]
             t = (s[2]-270)%360
             s2 = (x,y,t)
-            if 'stop' not in policy[s]:
-                file.write('policy[' + str(s2) + '] = ' + policy[s].pop() + '\n')
+            if s not in policy.keys():
+                file.write('policy[' + str(s2) + '] = stop\n')
             else:
-                file.write('policy['+str(s2)+'] = stop\n')
+                if 'stop' not in policy[s]:
+                    file.write('policy[' + str(s2) + '] = \'' + policy[s].pop() + '\'\n')
+                else:
+                    file.write('policy['+str(s2)+'] = stop\n')
         file.close()
 
 
@@ -234,7 +236,7 @@ class MDP(NFA):
         trace[t] = s
         while t < T:
             print 't = ', t, 'state = ', s
-            act = policy[s].pop()
+            act = list(policy[s])[0]
             ns = self.sample(s,act)
             t += 1
             s = ns
