@@ -19,12 +19,12 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,200)]
-yrange =[e for e in range(min_y,max_y+1,200)]
-trange = [e for e in range(0,180+1,30)]
+xrange = [e for e in range(min_x,max_x+1,100)]
+yrange =[e for e in range(min_y,max_y+1,100)]
+trange = [e for e in range(0,180+1,15)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
-traterange = [-5,0,5]
+traterange = [-4,0,4]
 xraterange = [-20,0,20]
 yraterange = [-20,0,20]
 v = 20
@@ -42,7 +42,7 @@ actdict = {'right':(0,v,0),
 
 transitions = []
 states = []
-dt = 10.1
+dt = 5.1
 
 ballpos = (0,0)
 targstates = set()
@@ -151,11 +151,11 @@ print('Computing policy...')
 #                 R[(s, a, ns)] = 1
 #             else:
 #                 R[(s, a, ns)] = 0
-V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.5)
-robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
+V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.1)
+# robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 print policy
 print V
-robot_mdp.policyTofile(policy,'robotpolicycoarsegrid.txt')
+robot_mdp.policyTofile(policy,'robotpolicyfinegrid.txt')
 
 
 
