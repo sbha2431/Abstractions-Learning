@@ -20,7 +20,7 @@ max_y = 1200
 min_y = -1200
 xrange = [e for e in range(min_x,max_x+1,100)]
 yrange =[e for e in range(min_y,max_y+1,100)]
-trange = [e for e in range(0,180+1,30)]
+trange = [e for e in range(0,180+1,15)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright'}
 
 traterange = [-5,0,5]
@@ -148,7 +148,7 @@ print('Computing policy...')
 V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.01)
 print policy
 print V
-robot_mdp.policyTofile(policy,'robotpolicybigrid.txt')
+robot_mdp.policyTofile(policy,'robotpolicyfinegrid.txt')
 robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 
 
