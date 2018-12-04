@@ -20,13 +20,13 @@ max_y = 1200
 min_y = -1200
 xrange = [e for e in range(min_x,max_x+1,100)]
 yrange =[e for e in range(min_y,max_y+1,100)]
-trange = [e for e in range(0,180+1,20)]
+trange = [e for e in range(0,180+1,30)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright'}
 
-traterange = [-4,0,4]
+traterange = [-5,0,5]
 xraterange = [-20,0,20]
 yraterange = [-20,0,20]
-v = 25
+v = 20
 
 actdict = {'right':(v,0,0),
            'left':(-v,0,0),
@@ -55,7 +55,7 @@ for x in tqdm(xrange):
     for y in yrange:
         for t in trange:
             states.append((x, y, t))
-            if (x, y, t) == (0, 0, 60):
+            if (x, y, t) == (0, 0, 80):
                 asdf = 1
             for action in alphabet:
                 trate = actdict[action][2]
