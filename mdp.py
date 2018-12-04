@@ -131,8 +131,8 @@ class MDP(NFA):
                 for t in self.post(s,a):
                     file.write('{} {} {} {}\n'.format(s,a,t,self.prob_delta(s,a,t)))
 
-    def E_step_value_iteration(self,R,
-                        epsilon=0.01, gamma=0.9):
+    def E_step_value_iteration(self,R,sink,targstates,
+                        epsilon=0.1, gamma=0.8):
         policyT = dict([])
         Vstate1 = dict([])
         Vstate1.update({s: 0 for s in self.states})
@@ -140,13 +140,13 @@ class MDP(NFA):
         Q = dict([])
         while e > epsilon:
             Vstate = Vstate1.copy()
-            for s in tqdm(self.states):
+            for s in tqdm(self.states - sink- targstates):
                 acts = self.available(s)
-                optimal = -50
+                optimal = 0
                 act = None
                 for a in self.available(s):
                     Q[(s, a)] = sum([self.prob_delta(s, a, next_s) *
-                                     (gamma*Vstate[next_s] + R[s,a,next_s])
+                                     (gamma*Vstate[next_s] + R[(s,a,next_s)])
                                      for next_s in self.post(s, a)])
                     if Q[(s, a)] >= optimal:
                         optimal = Q[(s, a)]
@@ -159,14 +159,12 @@ class MDP(NFA):
                         acts.add(act)
                 Vstate1[s] = optimal
                 policyT[s] = acts
-            e = abs(max([Vstate1[s] -
+            e = max(abs([Vstate1[s] -
                          Vstate[s] for s in self.states]))  # the abs error
             print(e)
-                # print "iteration: {} and the state
-                # value is {}".format(t, Vstate1)
         return Vstate1, policyT
 
-    def max_reach_prob(self, target,epsilon=0.1):
+    def max_reach_prob(self, target,sinks=set(),epsilon=0.1):
         """
         infinite time horizon
         Value iteration: Vstate[s] the maximal probability of hitting the
@@ -174,8 +172,10 @@ class MDP(NFA):
         """
         policyT = dict([])
         Vstate1 = dict([])
+        R = dict()
         Win = target
         NAEC = set(self.states) - Win
+
         Vstate1.update({s: 1 for s in list(Win)})
         Vstate1.update({s: 0 for s in list(NAEC)})
         policyT.update({s: self.available(s) for s in list(Win)})
@@ -183,7 +183,7 @@ class MDP(NFA):
         Q = dict([])
         while e > epsilon:
             Vstate = Vstate1.copy()
-            for s in tqdm(set(self.states) - Win):
+            for s in tqdm(set(self.states) - Win - sinks):
                 acts = self.available(s)
                 optimal = 0
                 act = None
@@ -207,7 +207,25 @@ class MDP(NFA):
             print e
                 # print "iteration: {} and the state
                 # value is {}".format(t, Vstate1)
+        for s in sinks:
+            policyT[s] = {'stop'}
         return Vstate1, policyT
+
+    def policyTofile(self,policy,outfile):
+        file = open(outfile, 'w')
+        file.write('policy = dict()\n')
+        for s in policy:
+            x = -s[1]
+            y = s[0]
+            t = (s[2]-270)%360
+            s2 = (x,y,t)
+            if 'stop' not in policy[s]:
+                file.write('policy[' + str(s2) + '] = ' + policy[s].pop() + '\n')
+            else:
+                file.write('policy['+str(s2)+'] = stop\n')
+        file.close()
+
+
 
     def computeTrace(self,init,policy,T,targ = None):
         s = init
@@ -215,6 +233,7 @@ class MDP(NFA):
         t = 0
         trace[t] = s
         while t < T:
+            print 't = ', t, 'state = ', s
             act = random.choice(list(policy[s]))
             ns = self.sample(s,act)
             t += 1
