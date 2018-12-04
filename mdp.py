@@ -20,7 +20,7 @@ class MDP(NFA):
         return self._prob_cache[(s, a, t)]
 
     def sample(self, state, action):
-        """Sample the next state according to the current state, the action, and
+        """Sample the next state according to the current state, the action,  and
         the transition probability. """
         if action not in self.available(state):
             return None
