@@ -5,6 +5,7 @@ import math
 from tqdm import tqdm
 import itertools
 import random
+import qlearning
 
 def get_indices_of_k_smallest(arr, k):
     idx = np.argpartition(arr.ravel(), k)
@@ -53,7 +54,7 @@ targstates = set()
 targ_angle = 90
 angle_uncertainty = 0.7
 uncertainty_disc = 3
-targstates.add((-200,0,90))
+targstates.add((0,0,90))
 R = dict()
 unsafe_states = set()
 successors=dict()
@@ -81,7 +82,7 @@ for x in tqdm(xrange):
                     # R[((x, y, t), action, (x, y, t))] = 0
                 if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1]+100 and abs(x) <= 400) or (t<25 or t>155):
                     transitions.append(((x, y, t), action, (x, y, t), 1.0))
-                    R[((x, y, t), action, (x, y, t))] = 0
+                    R[((x, y, t), action, (x, y, t))] = -100
                     unsafe_states.add((x,y,t))
                 else:
                     if np.sqrt(x ** 2 + y ** 2) < 100 and t == targ_angle:
@@ -215,7 +216,7 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet):
     return pol
 
 
-def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
+def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, epsilon=0.1):
     """
     Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
     while following an epsilon-greedy policy
@@ -243,31 +244,29 @@ def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
             Q[state,action]=0
 
     # Keeps track of useful statistics
-    #stats = plotting.EpisodeStats(
-     #   episode_lengths=np.zeros(num_episodes),
-      #  episode_rewards=np.zeros(num_episodes))
+    stats_episode_rewards=np.zeros(num_episodes)
 
     # The policy we're following
     #policy = make_epsilon_greedy_policy(Q, epsilon,alphabet)
 
     for i_episode in range(num_episodes):
         # Print out which episode we're on, useful for debugging.
-        if (i_episode + 1) % 100 == 0:
+        if (i_episode + 1) % 10 == 0:
             print("Episode number:", i_episode)
             #sys.stdout.flush()
 
         # Reset the environment and pick the first action
-        state = (400,400,60)
+        state = (0,-200,90)
 
         # One step in the environment
         # total_reward = 0.0
-        for t in itertools.count():
+        for t in range(num_steps):
 
             # Take a step
             Qpolicy = make_epsilon_greedy_policy(Q, epsilon, state, alphabet)
 
-            print(Qpolicy)
-            print(type(Qpolicy))
+            #print(Qpolicy)
+            #print(type(Qpolicy))
 
             action_probs = Qpolicy
             rand_val=random.random()
@@ -279,7 +278,7 @@ def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
 
 
             #action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
-            next_state=robot_mdp.computeTrace(state, action, 1, targ=targstates)
+            next_state,target=robot_mdp.computeTrace(state, action, 1, targ=targstates)
 
             #next_state, reward, done, _ = env.step(action)
           #  next_state=0
@@ -290,21 +289,28 @@ def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
 
 
             # Update statistics
-            #stats.episode_rewards[i_episode] += reward
             #stats.episode_lengths[i_episode] = t
 
             # TD Update
             reward= R[((state), action, next_state)]
-            best_next_action = np.argmax(Q[next_state])
+            stats_episode_rewards[i_episode] += reward
+
+            maxval = 0
+            for key in Qpolicy:
+                val = Qpolicy[key]
+                if maxval <= val:
+                    best_next_action=key
+            #best_next_action = np.argmax(Q[next_state])
             td_target = reward + discount_factor * Q[next_state,best_next_action]
             td_delta = td_target - Q[state,action]
             Q[state,action] += alpha * td_delta
 
-            if done:
+            if t==1000 or target==True:
                 break
 
             state = next_state
 
-    return Q, stats
+    return Q,stats_episode_rewards
 
-Q, stats = q_learning(robot_mdp, 500)
+Q, stats = qq_learning(robot_mdp, 50,100)
+print(stats)

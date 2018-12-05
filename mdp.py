@@ -22,6 +22,7 @@ class MDP(NFA):
     def sample(self, state, action):
         """Sample the next state according to the current state, the action,  and
         the transition probability. """
+        in_target=False
         if action not in self.available(state):
             return None
         # N = len(self.post(state, action))
@@ -36,12 +37,14 @@ class MDP(NFA):
 
             if rand_val <= total:
 
-                next_state=self.post(state,action)
-
+                next_state=key
+                break
+        if len(self.post(state,action))==1:
+            in_target=True
      #   next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
-        return next_state
+        return next_state,in_target
 
     def set_prob_delta(self, s, a, t, p):
         self._prob_cache[(s, a, t)] = p
@@ -244,15 +247,15 @@ class MDP(NFA):
         t = 0
         trace[t] = s
         while t < T:
-            print 't = ', t, 'state = ', s
+            #print 't = ', t, 'state = ', s
             act = policy
-            print ' act = ', act
-            ns = self.sample(s,act)
-            print(ns)
+            #print ' act = ', act
+            ns,target = self.sample(s,act)
+            #print(ns)
             t += 1
             s = ns
             trace[t] = ns
-            return ns
+            return ns,target
             #if ns == targ:
              #   return trace
 
