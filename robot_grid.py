@@ -19,14 +19,14 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,100)]
-yrange =[e for e in range(min_y,max_y+1,100)]
+xrange = [e for e in range(min_x,max_x+1,50)]
+yrange =[e for e in range(min_y,max_y+1,50)]
 trange = [e for e in range(0,180+1,30)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
-traterange = [-8,0,8]
-xraterange = [-20,0,20]
-yraterange = [-20,0,20]
+traterange = [-6,0,6]
+xraterange = [-10,0,10]
+yraterange = [-10,0,10]
 v = 20
 
 actdict = {'right':(0,v,0),
@@ -34,8 +34,8 @@ actdict = {'right':(0,v,0),
            'back':(-v,0,0),
            'forward':(v,0,0),
            'stop':(0,0,0),
-           'turnleft':(0,0,4),
-           'turnright':(0,0,-4),
+           'turnleft':(0,0,6),
+           'turnright':(0,0,-6),
            'forwardleft':(v,-v,0),
            'forwardright':(v,v,0)
            }
