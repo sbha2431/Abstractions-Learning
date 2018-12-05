@@ -29,7 +29,16 @@ class MDP(NFA):
         for t in self.post(state, action):
             prob.append(self.prob_delta(state, action, t))
 
-        next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
+        rand_val = random.random()
+        total = 0
+        for key in self.post(state,action):
+            total +=self.prob_delta(state,action,key)
+
+            if rand_val <= total:
+
+                next_state=self.post(state,action)
+
+     #   next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
         return next_state
@@ -236,13 +245,16 @@ class MDP(NFA):
         trace[t] = s
         while t < T:
             print 't = ', t, 'state = ', s
-            act = list(policy[s])[0]
+            act = policy
+            print ' act = ', act
             ns = self.sample(s,act)
+            print(ns)
             t += 1
             s = ns
             trace[t] = ns
-            if ns == targ:
-                return trace
+            return ns
+            #if ns == targ:
+             #   return trace
 
 
 
