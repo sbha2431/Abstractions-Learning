@@ -19,12 +19,12 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,50)]
-yrange =[e for e in range(min_y,max_y+1,50)]
-trange = [e for e in range(0,180+1,10)]
+xrange = [e for e in range(min_x,max_x+1,100)]
+yrange =[e for e in range(min_y,max_y+1,100)]
+trange = [e for e in range(0,180+1,30)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
-traterange = [-4,0,4]
+traterange = [-8,0,8]
 xraterange = [-20,0,20]
 yraterange = [-20,0,20]
 v = 20
@@ -42,14 +42,14 @@ actdict = {'right':(0,v,0),
 
 transitions = []
 states = []
-dt = 3.1
+dt = 5.1
 
-ballpos = (0,0)
+ballpos = (-200,0)
 targstates = set()
 targ_angle = 90
 angle_uncertainty = 0.7
-uncertainty_disc = 2
-targstates.add((0,0,90))
+uncertainty_disc = 3
+targstates.add((-200,0,90))
 R = dict()
 unsafe_states = set()
 for x in tqdm(xrange):
@@ -66,7 +66,7 @@ for x in tqdm(xrange):
                 #     targstates.add((x,y,t))
                     # transitions.append(((x, y, t), action, (x, y, t), 1.0))
                     # R[((x, y, t), action, (x, y, t))] = 0
-                if (abs(x) > 800 or abs(y) > 800) or (y >= ballpos[1]+100 and abs(x) <= 150) or (t<25 or t>155):
+                if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1]+100 and abs(x) <= 400) or (t<25 or t>155):
                     transitions.append(((x, y, t), action, (x, y, t), 1.0))
                     R[((x, y, t), action, (x, y, t))] = 0
                     unsafe_states.add((x,y,t))
@@ -96,7 +96,7 @@ for x in tqdm(xrange):
                         angle_uncertainty = 1
                     indkeysetx = get_indices_of_k_smallest(np.abs(xrange - xs), k)[0]
                     indkeysety = get_indices_of_k_smallest(abs(yrange - ys), k)[0]
-                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, 1)[0]
+                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, k)[0]
                     w = []
                     for nx in indkeysetx:
                         for ny in indkeysety:
@@ -155,7 +155,7 @@ V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=
 # robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
 print policy
 print V
-robot_mdp.policyTofile(policy,'robotpolicyfinestgrid.txt')
+robot_mdp.policyTofile(policy,'robotpolicyfinestgrid2.txt')
 
 
 
