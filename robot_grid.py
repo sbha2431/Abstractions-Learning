@@ -19,10 +19,10 @@ def writeJson(outfile,my_dict=None):
 num_x = 20
 num_y = 15
 num_t = 10
-max_x = 1200
-min_x = -1200
-max_y = 1200
-min_y = -1200
+max_x = 1000
+min_x = -1000
+max_y = 1000
+min_y = -1000
 xrange = [e for e in range(min_x,max_x+1,200)]
 yrange =[e for e in range(min_y,max_y+1,200)]
 trange = [e for e in range(90,270+1,30)]
@@ -52,8 +52,8 @@ dt = 10.1
 
 ballpos = (-200,0)
 targstates = set()
-targ_angle = 90
-angle_uncertainty = 0.7
+targ_angle = 180
+angle_uncertainty = 0.99
 uncertainty_disc = 2
 targstates.add((0,0,180))
 R = dict()
@@ -81,7 +81,7 @@ for x in tqdm(xrange):
                 #     targstates.add((x,y,t))
                     # transitions.append(((x, y, t), action, (x, y, t), 1.0))
                     # R[((x, y, t), action, (x, y, t))] = 0
-                if (abs(x) > 1000 or abs(y) > 1000) or (abs(y) <= 400 and x <= 0) or (t<115 or t>245):
+                if (abs(x) > 900 or abs(y) > 900) or (abs(y) <= 400 and x <= -5) or (t<115 or t>245):
                     transitions.append(((x, y, t), action, (x, y, t), 1.0))
                     R[(x, y, t), action] = -10
                     unsafe_states.add((x,y,t))
@@ -105,7 +105,7 @@ for x in tqdm(xrange):
                     ts = np.full((len(trange)), next_t)
                     if action != 'turnright'  and action != 'turnleft' and action != 'stop':
                         k = uncertainty_disc
-                        angle_uncertainty = 0.7
+                        angle_uncertainty = 0.95
                     else:
                         k = 1
                         angle_uncertainty = 1
@@ -133,7 +133,7 @@ for x in tqdm(xrange):
                                 #     # elif (x, y, t) == ballpos + tuple({targ_angle}):
                                 #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
                                 #     else:
-                                    if (x2,y2,t2) in targstates and transdict[(x,y,t),action,(x2,y2,t2)] > 0.5:
+                                    if (x2,y2,t2) in targstates and transdict[(x,y,t),action,(x2,y2,t2)] >0.9:
                                         R[(x, y, t), action] = 1000
                                         print ((x, y, t), action, (x2, y2, t2))
                                     else:
@@ -221,7 +221,7 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet):
     return pol
 
 
-def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, epsilon=0.1):
+def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, epsilon=0.5):
     """
     Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
     while following an epsilon-greedy policy
@@ -248,28 +248,32 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
 
 
             Q[state,action]=0
+    Q[(0, 0, 180), 'stop'] = 10000
+
 
     # Keeps track of useful statistics
     stats_episode_rewards=np.zeros(num_episodes)
+    stats_episode_goals=np.zeros(num_episodes)
 
     # The policy we're following
     #policy = make_epsilon_greedy_policy(Q, epsilon,alphabet)
 
-    for i_episode in tqdm(range(num_episodes)):
+    for i_episode in tqdm(range(1,num_episodes)):
+        epsilon_pol=epsilon-epsilon*i_episode/num_episodes
         # Print out which episode we're on, useful for debugging.
         if (i_episode + 1) % 10 == 0:
             print("Episode number:", i_episode+1)
             #sys.stdout.flush()
 
         # Reset the environment and pick the first action
-        max_x = 400
+        max_x = 200
 
-        min_x = 200
+        min_x = 000
         max_y = 200
-        min_y = 0
+        min_y = -200
         xrangeinit = [e for e in range(min_x, max_x + 1, 200)]
         yrangeinit = [e for e in range(min_y, max_y + 1, 200)]
-        trangeinit = [e for e in range(90, 270 + 1, 30)]
+        trangeinit = [e for e in range(120, 240 + 1, 30)]
         xinit=random.choice(xrangeinit)
         yinit = random.choice(yrangeinit)
         tinit = random.choice(trangeinit)
@@ -282,7 +286,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
         for t in range(num_steps):
 
             # Take a step
-            Qpolicy = make_epsilon_greedy_policy(Q, epsilon, state, alphabet)
+            Qpolicy = make_epsilon_greedy_policy(Q, epsilon_pol, state, alphabet)
 
             #print(Qpolicy)
             #print(type(Qpolicy))
@@ -295,6 +299,8 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
                 if rand_val<=total:
                     action=key
                     break
+            if state==(0,0,180):
+                action='stop'
 
 
             #action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
@@ -302,7 +308,8 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
 
             #next_state, reward, done, _ = env.step(action)
           #  next_state=0
-            print(next_state)
+            print(next_state,action)
+            #print(Qpolicy)
             rand_val=random.random()
 
 
@@ -313,9 +320,8 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
 
             # TD Update
             reward= R[(state), action]
-            stats_episode_rewards[i_episode] += reward*(discount_factor**(t+1))
-
-            maxval = 0
+            stats_episode_rewards[i_episode-1] += reward*(discount_factor**(t+1))
+            maxval = -1e8
             for key in Qpolicy:
                 val = Qpolicy[key]
                 if maxval <= val:
@@ -325,20 +331,27 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
             td_delta = td_target - Q[state,action]
             Q[state,action] += alpha * td_delta
 
-            if t==1000 or reward==-10 or reward==100 or reward==1000:
+
+            if t==1000 or state in targstates or state in unsafe_states:
                 print(stats_episode_rewards[i_episode])
+                stats_episode_goals[i_episode] = stats_episode_goals[i_episode - 1]
+
+                if state in targstates:
+                    stats_episode_goals[i_episode] += 1
+
                 break
+
 
             state = next_state
 
-    return Q,stats_episode_rewards
-
-Q, stats = qq_learning(robot_mdp, 1000,100)
+    return Q,stats_episode_rewards,stats_episode_goals
+num_eps=1000
+Q, stats,stats_goal = qq_learning(robot_mdp,num_eps,1000)
 #print(Q)
 #print(stats)
 policy=dict([])
 for state in states:
-    maxval = 0
+    maxval = -1e8
 
     for a in alphabet:
         val = Q[state, a]
@@ -348,7 +361,7 @@ for state in states:
 
     policy[state]=best_action
     (x,y,t)=state
-    if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
+    if (abs(x) > 900 or abs(y) > 900) or (abs(y) <= 400 and x <= -5) or (t<115 or t>245):
         policy[state]='stop'
 
 
@@ -373,11 +386,33 @@ def moving_average(data_set, periods=3):
     weights = np.ones(periods) / periods
     return np.convolve(data_set, weights, mode='valid')
 
+def rolling_average(a, n=len(a)) :
+    ret = np.cumsum(a, dtype=float)
+    ret[n:] = ret[n:] - ret[:-n]
+    return ret[n - 1:] / n
 
-stats2 = moving_average(np.asarray(stats), 50)
+def running_mean(x, N):
+    out = np.zeros_like(x, dtype=np.float64)
+    dim_len = x.shape[0]
+    for i in range(dim_len):
+        if N%2 == 0:
+            a, b = i - (N-1)//2, i + (N-1)//2 + 2
+        else:
+            a, b = i - (N-1)//2, i + (N-1)//2 + 1
 
+        #cap indices to min and max indices
+        a = max(0, a)
+        b = min(dim_len, b)
+        out[i] = np.mean(x[a:b])
+    return out
+
+stats2 = running_mean(np.asarray(stats), num_eps)
+#stats_goal=rolling_average(np.asarray(stats_goal),500)
+#statsgoals = moving_average(np.asarray(stats_goal), 50)
+print(stats)
 #plt.plot(stats)
 plt.plot(stats2)
+plt.plot(stats_goal)
 
 plt.ylabel('expected reward')
 plt.show()
