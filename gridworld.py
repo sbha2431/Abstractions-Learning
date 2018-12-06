@@ -3,9 +3,9 @@ __author__ = 'sudab'
 import os, sys, getopt, pdb, string
 import random
 import numpy as np
-import pygame
+#import pygame
 from mdp import MDP
-import pygame.locals as pgl
+#import pygame.locals as pgl
 
 class Gridworld():
     # a gridworld with uneven terrain

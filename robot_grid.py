@@ -3,6 +3,9 @@ import numpy as np
 from mdp import MDP
 import math
 from tqdm import tqdm
+import itertools
+import random
+import qlearning
 
 def get_indices_of_k_smallest(arr, k):
     idx = np.argpartition(arr.ravel(), k)
@@ -42,16 +45,27 @@ actdict = {'right':(0,v,0),
 
 transitions = []
 states = []
-dt = 5.1
+states2 = []
+
+dt = 10.1
 
 ballpos = (-200,0)
 targstates = set()
 targ_angle = 90
 angle_uncertainty = 0.7
-uncertainty_disc = 3
-targstates.add((-200,0,90))
+uncertainty_disc = 2
+targstates.add((0,0,90))
 R = dict()
 unsafe_states = set()
+successors=dict()
+for x in tqdm(xrange):
+    for y in yrange:
+        for t in trange:
+            states2.append((x, y, t))
+successors=dict()
+for state in states2:
+    successors[state]=[]
+
 for x in tqdm(xrange):
     for y in yrange:
         for t in trange:
@@ -68,7 +82,7 @@ for x in tqdm(xrange):
                     # R[((x, y, t), action, (x, y, t))] = 0
                 if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1]+100 and abs(x) <= 400) or (t<25 or t>155):
                     transitions.append(((x, y, t), action, (x, y, t), 1.0))
-                    R[((x, y, t), action, (x, y, t))] = 0
+                    R[((x, y, t), action, (x, y, t))] = -100
                     unsafe_states.add((x,y,t))
                 else:
                     if np.sqrt(x ** 2 + y ** 2) < 100 and t == targ_angle:
@@ -96,7 +110,7 @@ for x in tqdm(xrange):
                         angle_uncertainty = 1
                     indkeysetx = get_indices_of_k_smallest(np.abs(xrange - xs), k)[0]
                     indkeysety = get_indices_of_k_smallest(abs(yrange - ys), k)[0]
-                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, k)[0]
+                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, 1)[0]
                     w = []
                     for nx in indkeysetx:
                         for ny in indkeysety:
@@ -119,14 +133,20 @@ for x in tqdm(xrange):
                                 #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
                                 #     else:
                                     if (x2,y2,t2) in targstates:
-                                        R[((x, y, t), action, (x2, y2, t2))] = 1
+                                        R[((x, y, t), action, (x2, y2, t2))] = 100
                                         print ((x, y, t), action, (x2, y2, t2))
                                     else:
                                         R[((x, y, t), action, (x2, y2, t2))] = 0
                                     transitions.append(((x,y,t),action,(x2,y2,t2),transdict[(x,y,t),action,(x2,y2,t2)]))
+                                    successors[(x,y,t)].append((x2, y2, t2))
 
 # alphabet = traterange
 robot_mdp = MDP(states,alphabet,transitions)
+successors=dict()
+for state in states:
+    successors[state]=dict()
+
+
 
 
 # R = dict.fromkeys(transdict.keys(),-1)
@@ -151,12 +171,150 @@ print('Computing policy...')
 #                 R[(s, a, ns)] = 1
 #             else:
 #                 R[(s, a, ns)] = 0
-V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.1)
-# robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
-print policy
-print V
-robot_mdp.policyTofile(policy,'robotpolicyfinestgrid2.txt')
+#V, policy = robot_mdp.E_step_value_iteration(R,unsafe_states,targstates,epsilon=0.7)
+#robot_mdp.computeTrace((400,400,60),policy,40,targ = targstates)
+#print(policy)
+#print(V)
+#robot_mdp.policyTofile(policy,'robotpolicyfinestgrid2.txt')
 
 
 
-writeJson('robotpolicy_biggrid2',policy)
+#writeJson('robotpolicy_biggrid2',policy)
+
+
+def make_epsilon_greedy_policy(Q, epsilon,state,alphabet):
+    """
+    Creates an epsilon-greedy policy based on a given Q-function and epsilon.
+
+    Args:
+        Q: A dictionary that maps from state -> action-values.
+            Each value is a numpy array of length nA (see below)
+        epsilon: The probability to select a random action . float between 0 and 1.
+        nA: Number of actions in the environment.
+
+    Returns:
+        A function that takes the observation as an argument and returns
+        the probabilities for each action in the form of a numpy array of length nA.
+
+    """
+    nA=len(alphabet)
+    def policy_fn(state):
+        A=dict()
+        for act in alphabet:
+            A[act]=1*epsilon / (nA*1.0)
+        #A = np.ones(nA, dtype=float) * epsilon / nA
+        maxval=0
+        best_action='left'
+        for a in alphabet:
+            val=Q[state,a]
+            if val>=maxval:
+                best_action = a
+                maxval=val
+        A[best_action] += (1.0 - epsilon)
+        return A
+
+    pol=policy_fn(state)
+    return pol
+
+
+def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, epsilon=0.1):
+    """
+    Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
+    while following an epsilon-greedy policy
+
+    Args:
+        env: OpenAI environment.
+        num_episodes: Number of episodes to run for.
+        discount_factor: Gamma discount factor.
+        alpha: TD learning rate.
+        epsilon: Chance the sample a random action. Float betwen 0 and 1.
+
+    Returns:
+        A tuple (Q, episode_lengths).
+        Q is the optimal action-value function, a dictionary mapping state -> action values.
+        stats is an EpisodeStats object with two numpy arrays for episode_lengths and episode_rewards.
+    """
+
+    # The final action-value function.
+    # A nested dictionary that maps state -> (action -> action-value).
+
+    Q = dict()
+    for state in robot_mdp.states:
+        for action in alphabet:
+
+            Q[state,action]=0
+
+    # Keeps track of useful statistics
+    stats_episode_rewards=np.zeros(num_episodes)
+
+    # The policy we're following
+    #policy = make_epsilon_greedy_policy(Q, epsilon,alphabet)
+
+    for i_episode in range(num_episodes):
+        # Print out which episode we're on, useful for debugging.
+        if (i_episode + 1) % 10 == 0:
+            print("Episode number:", i_episode+1)
+            #sys.stdout.flush()
+
+        # Reset the environment and pick the first action
+        state = (0,-200,90)
+
+        # One step in the environment
+        # total_reward = 0.0
+        for t in range(num_steps):
+
+            # Take a step
+            Qpolicy = make_epsilon_greedy_policy(Q, epsilon, state, alphabet)
+
+            #print(Qpolicy)
+            #print(type(Qpolicy))
+
+            action_probs = Qpolicy
+            rand_val=random.random()
+            total=0
+            for key in Qpolicy:
+                total+=Qpolicy[key]
+                if rand_val<=total:
+                    action=key
+                    break
+
+
+            #action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+            next_state,target=robot_mdp.computeTrace(state, action, 1, targ=targstates)
+
+            #next_state, reward, done, _ = env.step(action)
+          #  next_state=0
+            print(next_state)
+            rand_val=random.random()
+
+
+
+
+            # Update statistics
+            #stats.episode_lengths[i_episode] = t
+
+            # TD Update
+            reward= R[((state), action, next_state)]
+            stats_episode_rewards[i_episode] += reward*(discount_factor**(t+1))
+
+            maxval = 0
+            for key in Qpolicy:
+                val = Qpolicy[key]
+                if maxval <= val:
+                    best_next_action=key
+            #best_next_action = np.argmax(Q[next_state])
+            td_target = reward + discount_factor * Q[next_state,best_next_action]
+            td_delta = td_target - Q[state,action]
+            Q[state,action] += alpha * td_delta
+
+            if t==1000 or target==True:
+                print(stats_episode_rewards[i_episode])
+                break
+
+            state = next_state
+
+    return Q,stats_episode_rewards
+
+Q, stats = qq_learning(robot_mdp, 500,100)
+print(stats)
+print(Q)

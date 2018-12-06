@@ -22,6 +22,7 @@ class MDP(NFA):
     def sample(self, state, action):
         """Sample the next state according to the current state, the action,  and
         the transition probability. """
+        in_target=False
         if action not in self.available(state):
             return None
         # N = len(self.post(state, action))
@@ -29,10 +30,26 @@ class MDP(NFA):
         for t in self.post(state, action):
             prob.append(self.prob_delta(state, action, t))
 
-        next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
+        rand_val = random.random()
+        total = 0
+        for key in self.post(state,action):
+            total +=self.prob_delta(state,action,key)
+
+            if rand_val <= total:
+
+                next_state=key
+                break
+        (x,y,t)=state
+        ballpos = (-200, 0)
+
+        if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
+            in_target=True
+        if x==0 and y==0 and t==90:
+            in_target=True
+     #   next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
-        return next_state
+        return next_state,in_target
 
     def set_prob_delta(self, s, a, t, p):
         self._prob_cache[(s, a, t)] = p
@@ -235,14 +252,17 @@ class MDP(NFA):
         t = 0
         trace[t] = s
         while t < T:
-            print 't = ', t, 'state = ', s
-            act = list(policy[s])[0]
-            ns = self.sample(s,act)
+            #print 't = ', t, 'state = ', s
+            act = policy
+            #print ' act = ', act
+            ns,target = self.sample(s,act)
+            #print(ns)
             t += 1
             s = ns
             trace[t] = ns
-            if ns == targ:
-                return trace
+            return ns,target
+            #if ns == targ:
+             #   return trace
 
 
 
