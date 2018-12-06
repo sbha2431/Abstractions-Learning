@@ -263,6 +263,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, ep
 
         # Reset the environment and pick the first action
         max_x = 400
+
         min_x = 200
         max_y = 200
         min_y = 0
