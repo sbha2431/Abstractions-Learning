@@ -6,6 +6,7 @@ from tqdm import tqdm
 import itertools
 import random
 import qlearning
+import matplotlib.pyplot as plt
 
 def get_indices_of_k_smallest(arr, k):
     idx = np.argpartition(arr.ravel(), k)
@@ -22,8 +23,8 @@ max_x = 1200
 min_x = -1200
 max_y = 1200
 min_y = -1200
-xrange = [e for e in range(min_x,max_x+1,100)]
-yrange =[e for e in range(min_y,max_y+1,100)]
+xrange = [e for e in range(min_x,max_x+1,200)]
+yrange =[e for e in range(min_y,max_y+1,200)]
 trange = [e for e in range(0,180+1,30)]
 alphabet = {'forward','back','left','right','stop','turnleft','turnright','forwardleft','forwardright'}
 
@@ -82,12 +83,12 @@ for x in tqdm(xrange):
                     # R[((x, y, t), action, (x, y, t))] = 0
                 if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1]+100 and abs(x) <= 400) or (t<25 or t>155):
                     transitions.append(((x, y, t), action, (x, y, t), 1.0))
-                    R[((x, y, t), action, (x, y, t))] = -100
+                    R[(x, y, t), action] = -100
                     unsafe_states.add((x,y,t))
                 else:
                     if np.sqrt(x ** 2 + y ** 2) < 100 and t == targ_angle:
                         targstates.add((x,y,t))
-                        R[((x, y, t), action, (x, y, t))] = 0
+                        R[(x, y, t), action] = 0
                         transitions.append(((x, y, t), action, (x, y, t), 1.0))
                     transdict = dict([((x, y, t), action, (xnew, ynew, tnew)), 0.0] for xnew in xrange for ynew in yrange for tnew in trange)
                     next_t =  max(min(t + dt*trate,180),0)
@@ -132,15 +133,18 @@ for x in tqdm(xrange):
                                 #     # elif (x, y, t) == ballpos + tuple({targ_angle}):
                                 #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
                                 #     else:
-                                    if (x2,y2,t2) in targstates:
-                                        R[((x, y, t), action, (x2, y2, t2))] = 100
+                                    if (x2,y2,t2) in targstates and transdict[(x,y,t),action,(x2,y2,t2)] > 0.5:
+                                        R[(x, y, t), action] = 100
                                         print ((x, y, t), action, (x2, y2, t2))
                                     else:
-                                        R[((x, y, t), action, (x2, y2, t2))] = 0
+                                        R[(x, y, t), action] = 0
                                     transitions.append(((x,y,t),action,(x2,y2,t2),transdict[(x,y,t),action,(x2,y2,t2)]))
                                     successors[(x,y,t)].append((x2, y2, t2))
 
 # alphabet = traterange
+for action in alphabet:
+    R[(0,0,90),action]=100
+
 robot_mdp = MDP(states,alphabet,transitions)
 successors=dict()
 for state in states:
@@ -217,7 +221,7 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet):
     return pol
 
 
-def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, epsilon=0.1):
+def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.9, epsilon=0.1):
     """
     Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
     while following an epsilon-greedy policy
@@ -242,6 +246,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
     for state in robot_mdp.states:
         for action in alphabet:
 
+
             Q[state,action]=0
 
     # Keeps track of useful statistics
@@ -257,7 +262,19 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
             #sys.stdout.flush()
 
         # Reset the environment and pick the first action
-        state = (0,-200,90)
+        max_x = 1000
+        min_x = 400
+        max_y = 1000
+        min_y = 0
+        xrangeinit = [e for e in range(min_x, max_x + 1, 200)]
+        yrangeinit = [e for e in range(min_y, max_y + 1, 200)]
+        trangeinit = [e for e in range(60, 120 + 1, 30)]
+        xinit=random.choice(xrangeinit)
+        yinit = random.choice(yrangeinit)
+        tinit = random.choice(trangeinit)
+        state = (xinit,yinit,tinit)
+
+
 
         # One step in the environment
         # total_reward = 0.0
@@ -294,7 +311,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
             #stats.episode_lengths[i_episode] = t
 
             # TD Update
-            reward= R[((state), action, next_state)]
+            reward= R[(state), action]
             stats_episode_rewards[i_episode] += reward*(discount_factor**(t+1))
 
             maxval = 0
@@ -307,7 +324,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
             td_delta = td_target - Q[state,action]
             Q[state,action] += alpha * td_delta
 
-            if t==1000 or target==True:
+            if t==1000 or reward==-100 or reward==100 or reward==1000:
                 print(stats_episode_rewards[i_episode])
                 break
 
@@ -315,6 +332,51 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
 
     return Q,stats_episode_rewards
 
-Q, stats = qq_learning(robot_mdp, 500,100)
-print(stats)
-print(Q)
+Q, stats = qq_learning(robot_mdp, 10000,100)
+#print(Q)
+#print(stats)
+policy=dict([])
+for state in states:
+    maxval = 0
+
+    for a in alphabet:
+        val = Q[state, a]
+        if val >= maxval:
+            best_action = a
+            maxval = val
+
+    policy[state]=best_action
+    (x,y,t)=state
+    if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
+        policy[state]='stop'
+
+
+def qTofile(Qvalues, states,alphabet, outfile):
+    file = open(outfile, 'w')
+    file.write('Qvalues = dict()\n')
+    for s in states:
+        for act in alphabet:
+
+            file.write('Qvalues[' + str(s) + ' ,'+str(act)+ '] = ' + str(Qvalues[s,act]) + '\n')
+
+    file.close()
+
+qTofile(Q,states,alphabet,'qvalue.txt')
+
+
+
+#robot_mdp.policyTofile(Q,'robotexpectedreward.txt')
+robot_mdp.policyTofile(policy,'qlearning_policy.txt')
+
+def moving_average(data_set, periods=3):
+    weights = np.ones(periods) / periods
+    return np.convolve(data_set, weights, mode='valid')
+
+
+stats2 = moving_average(np.asarray(stats), 50)
+
+#plt.plot(stats)
+plt.plot(stats2)
+
+plt.ylabel('expected reward')
+plt.show()
