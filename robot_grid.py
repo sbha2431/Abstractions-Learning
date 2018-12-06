@@ -53,7 +53,7 @@ ballpos = (-200,0)
 targstates = set()
 targ_angle = 90
 angle_uncertainty = 0.7
-uncertainty_disc = 3
+uncertainty_disc = 2
 targstates.add((0,0,90))
 R = dict()
 unsafe_states = set()
@@ -110,7 +110,7 @@ for x in tqdm(xrange):
                         angle_uncertainty = 1
                     indkeysetx = get_indices_of_k_smallest(np.abs(xrange - xs), k)[0]
                     indkeysety = get_indices_of_k_smallest(abs(yrange - ys), k)[0]
-                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, k)[0]
+                    indkeysett = get_indices_of_k_smallest(abs(trange - ts) - ts, 1)[0]
                     w = []
                     for nx in indkeysetx:
                         for ny in indkeysety:
@@ -133,7 +133,7 @@ for x in tqdm(xrange):
                                 #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
                                 #     else:
                                     if (x2,y2,t2) in targstates:
-                                        R[((x, y, t), action, (x2, y2, t2))] = 1
+                                        R[((x, y, t), action, (x2, y2, t2))] = 100
                                         print ((x, y, t), action, (x2, y2, t2))
                                     else:
                                         R[((x, y, t), action, (x2, y2, t2))] = 0
@@ -204,6 +204,7 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet):
             A[act]=1*epsilon / (nA*1.0)
         #A = np.ones(nA, dtype=float) * epsilon / nA
         maxval=0
+        best_action='left'
         for a in alphabet:
             val=Q[state,a]
             if val>=maxval:
@@ -252,7 +253,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
     for i_episode in range(num_episodes):
         # Print out which episode we're on, useful for debugging.
         if (i_episode + 1) % 10 == 0:
-            print("Episode number:", i_episode)
+            print("Episode number:", i_episode+1)
             #sys.stdout.flush()
 
         # Reset the environment and pick the first action
@@ -275,6 +276,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
                 total+=Qpolicy[key]
                 if rand_val<=total:
                     action=key
+                    break
 
 
             #action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
@@ -293,7 +295,7 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
 
             # TD Update
             reward= R[((state), action, next_state)]
-            stats_episode_rewards[i_episode] += reward
+            stats_episode_rewards[i_episode] += reward*(discount_factor**(t+1))
 
             maxval = 0
             for key in Qpolicy:
@@ -306,11 +308,13 @@ def qq_learning(env, num_episodes, num_steps, discount_factor=0.9, alpha=0.5, ep
             Q[state,action] += alpha * td_delta
 
             if t==1000 or target==True:
+                print(stats_episode_rewards[i_episode])
                 break
 
             state = next_state
 
     return Q,stats_episode_rewards
 
-Q, stats = qq_learning(robot_mdp, 50,100)
+Q, stats = qq_learning(robot_mdp, 500,100)
 print(stats)
+print(Q)

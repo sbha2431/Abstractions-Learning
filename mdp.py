@@ -39,7 +39,12 @@ class MDP(NFA):
 
                 next_state=key
                 break
-        if len(self.post(state,action))==1:
+        (x,y,t)=state
+        ballpos = (-200, 0)
+
+        if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
+            in_target=True
+        if x==0 and y==0 and t==90:
             in_target=True
      #   next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
