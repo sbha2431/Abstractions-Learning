@@ -41,11 +41,16 @@ class MDP(NFA):
                 break
         (x,y,t)=state
         ballpos = (-200, 0)
-
         if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
+
             in_target=True
+
+
         if x==0 and y==0 and t==90:
+
             in_target=True
+
+
      #   next_state = self.post(state, action)[np.random.choice(range(len(self.post(state, action))),1,prob)[0]]
         # Note that only one element is chosen from the array, which is the
         # output by random.choice
@@ -236,13 +241,15 @@ class MDP(NFA):
             t = (s[2]-270)%360
             s2 = (x,y,t)
             if s not in policy.keys():
-                file.write('policy[' + str(s2) + '] = stop\n')
+                file.write('policy[' + str(s2) + '] = \'stop\' '+'\n')
             else:
                 if 'stop' not in policy[s]:
-                    file.write('policy[' + str(s2) + '] = \'' + policy[s].pop() + '\'\n')
+                    file.write('policy[' + str(s2) + '] = \'' + str(policy[s]) + '\'\n')
                 else:
-                    file.write('policy['+str(s2)+'] = stop\n')
+                    file.write('policy['+str(s2)+'] = \'stop\' '+'\n')
         file.close()
+
+
 
 
 
