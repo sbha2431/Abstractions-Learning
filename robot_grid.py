@@ -395,21 +395,18 @@ def running_mean(x, N):
     out = np.zeros_like(x, dtype=np.float64)
     dim_len = x.shape[0]
     for i in range(dim_len):
-        if N%2 == 0:
-            a, b = i - (N-1)//2, i + (N-1)//2 + 2
-        else:
-            a, b = i - (N-1)//2, i + (N-1)//2 + 1
+        for j in range(i+1):
+            out[i]+=x[j]
 
         #cap indices to min and max indices
-        a = max(0, a)
-        b = min(dim_len, b)
-        out[i] = np.mean(x[a:b])
+
+        out[i] = out[i]/(i+1)
     return out
 
 stats2 = running_mean(np.asarray(stats), num_eps)
 #stats_goal=rolling_average(np.asarray(stats_goal),500)
 #statsgoals = moving_average(np.asarray(stats_goal), 50)
-print(stats)
+print(stats2)
 #plt.plot(stats)
 plt.plot(stats2)
 plt.plot(stats_goal)
