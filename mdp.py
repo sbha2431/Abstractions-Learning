@@ -41,12 +41,11 @@ class MDP(NFA):
                 break
         (x,y,t)=state
         ballpos = (-200, 0)
-        if (abs(x) > 1000 or abs(y) > 1000) or (y >= ballpos[1] + 100 and abs(x) <= 400) or (t < 25 or t > 155):
-
+        if (abs(x) > 1000 or abs(y) > 1000) or (abs(y) <= 400 and x <= 0) or (t < 115 or t > 245):
             in_target=True
 
 
-        if x==0 and y==0 and t==90:
+        if x==0 and y==0 and t==180:
 
             in_target=True
 
@@ -236,9 +235,9 @@ class MDP(NFA):
         file = open(outfile, 'w')
         file.write('policy = dict()\n')
         for s in self.states:
-            x = -s[1]
-            y = s[0]
-            t = (s[2]-270)%360
+            x = s[0]
+            y = s[1]
+            t = (s[2])
             s2 = (x,y,t)
             if s not in policy.keys():
                 file.write('policy[' + str(s2) + '] = \'stop\' '+'\n')
