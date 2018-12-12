@@ -235,9 +235,9 @@ class MDP(NFA):
         file = open(outfile, 'w')
         file.write('policy = dict()\n')
         for s in self.states:
-            x = -s[1]
-            y = s[0]
-            t = (s[2]-270)%360
+            x = s[0]
+            y = s[1]
+            t = (s[2])
             s2 = (x,y,t)
             if s not in policy.keys():
                 file.write('policy[' + str(s2) + '] = \'stop\' '+'\n')
