@@ -38,8 +38,8 @@ actdict = {'right':(0,v,0),
            'back':(-v,0,0),
            'forward':(v,0,0),
            'stop':(0,0,0),
-           'turnleft':(0,0,-4),
-           'turnright':(0,0,4),
+           'turnleft':(0,0,4),
+           'turnright':(0,0,-4),
            'forwardleft':(v,-v,0),
            'forwardright':(v,v,0)
            }
@@ -71,7 +71,7 @@ for x in tqdm(xrange):
     for y in yrange:
         for t in trange:
             states.append((x, y, t))
-            if (x, y, t) == (200, 200, 180):
+            if (x, y, t) == (200, 200, 120):
                 asdf = 1
 
             for action in alphabet:
@@ -98,15 +98,20 @@ for x in tqdm(xrange):
                     #     next_x = max(min(max_x,x+xrate*dt*np.sin(np.radians((next_t+t)/2))),min_x)
                     #     next_y = max(min(max_y,-1*xrate * dt * np.cos(np.radians((next_t + t) / 2))), min_y)
 
-
-                    next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((t)))+yrate*dt*np.sin(np.radians((t+t)/2))),min_x)
-                    next_y = max(min(max_y,y - yrate*dt*np.cos(np.radians((t))) + xrate*dt*np.sin(np.radians((t+t)/2))),min_y)
+                    if (x, y, t) == (200, 200, 210):
+                        asdf = 1
+                    if t<=180:
+                        next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((t)))+yrate*dt*np.sin(np.radians((t+t)/2))),min_x)
+                        next_y = max(min(max_y,y - yrate*dt*np.cos(np.radians((t))) + xrate*dt*np.sin(np.radians((t+t)/2))),min_y)
+                    else:
+                        next_x = max(min(max_x,x+xrate*dt*np.cos(np.radians((t)))+yrate*dt*np.sin(np.radians((t+t)/2))),min_x)
+                        next_y = max(min(max_y,y + yrate*dt*np.cos(np.radians((t))) - xrate*dt*np.sin(np.radians((t+t)/2))),min_y)
                     xs = np.full((len(xrange)), next_x)
                     ys = np.full((len(yrange)), next_y)
                     ts = np.full((len(trange)), next_t)
                     if action != 'turnright'  and action != 'turnleft' and action != 'stop':
                         k = uncertainty_disc
-                        angle_uncertainty = 0.8
+                        angle_uncertainty = 0.9
                     else:
                         k = 1
                         angle_uncertainty = 1
@@ -123,9 +128,9 @@ for x in tqdm(xrange):
                                     transdict[((x, y,t), action, (xrange[nx], yrange[ny],trange[nt]))] += angle_uncertainty
 
                                 else:
-                                    if action != 'turnright' or action != 'turnleft' or action != 'stop':
+                                    if (action != 'turnright' or action != 'turnleft' or action != 'stop') and (len(indkeysetx) * len(indkeysety) * len(indkeysett)>1):
                                         transdict[((x, y, t), action, (xrange[nx], yrange[ny], trange[nt]))] += (1.0-angle_uncertainty) / (
-                                        len(indkeysetx) + len(indkeysety) + len(indkeysett)-2)
+                                        len(indkeysetx) * len(indkeysety) * len(indkeysett)-1)
                     for x2 in xrange:
                         for y2 in yrange:
                             for t2 in trange:
@@ -137,7 +142,7 @@ for x in tqdm(xrange):
                                 #     # elif (x, y, t) == ballpos + tuple({targ_angle}):
                                 #     #     R[((x, y, t), trate, (x2, y2, t2))] = 0
                                 #     else:
-                                    if (x2,y2,t2) in targstates and transdict[(x,y,t),action,(x2,y2,t2)] >0.9:
+                                    if (x2,y2,t2) in targstates and transdict[(x,y,t),action,(x2,y2,t2)] >0.7:
                                         R[(x, y, t), action] = 100
                                         print ((x, y, t), action, (x2, y2, t2))
                                     else:
@@ -205,15 +210,20 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet,successors,transdict,un
     """
     unsafe_act = set()
     for act in alphabet:
+        #if state==(200,0,180):
+           # print (state)
 
         for state2 in robot_mdp.states:
             try:
                 transval=robot_mdp.prob_delta(state, act, state2)
-                #print(transval)
-                if state2 in unsafe_states and transval>2 and (state not in unsafe_states):
+                #if state == (200, 0, 180):
+
+                   # print(transval,state,state2,act)
+                if state2 in unsafe_states and transval>0.7 and (state not in unsafe_states):
 
                     unsafe_act.add(act)
-                    #print(state,state2,unsafe_act,transval)
+                    if state==(200,0,180):
+                        print(state,state2,unsafe_act,transval)
             except:
                 pass
 
@@ -227,6 +237,7 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet,successors,transdict,un
         A=dict()
         for act in alphabet:
             if nA>1 and state!=(0,0,180) and 'stop' not in unsafe_act:
+
                 unsafe_act.add('stop')
                 nA=nA-1
         for act in alphabet:
@@ -245,14 +256,14 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet,successors,transdict,un
                     best_action = a
                     maxval=val
         A[best_action] += (1.0 - epsilon)
-        #print(A)
+
         return A
 
     pol=policy_fn(state,unsafe_act,nA)
     return pol
 
 
-def qq_learning(env, num_episodes, num_steps,transdict,unsafe_states,discount_factor=0.99, alpha=0.9999, epsilon=0.5):
+def qq_learning(env, num_episodes, num_steps,transdict,unsafe_states,discount_factor=0.85, alpha=0.9999, epsilon=0.5):
     """
     Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
     while following an epsilon-greedy policy
@@ -340,7 +351,8 @@ def qq_learning(env, num_episodes, num_steps,transdict,unsafe_states,discount_fa
             if state==(0,0,180):
                 action='stop'
                 print("target state reached")
-            #print(state,action,Qpolicy)
+            #if state==(200,0,180):
+              #  print(state,action,Q[state,'forward'],Qpolicy)
 
 
             #action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
@@ -372,9 +384,10 @@ def qq_learning(env, num_episodes, num_steps,transdict,unsafe_states,discount_fa
             #best_next_action = np.argmax(Q[next_state])
             if reward>0:
                 1
-            td_target = reward + discount_factor * Q[next_state,best_next_action]
-            td_delta = td_target - Q[state,action]
-            Q[state,action] += alpha * td_delta
+            if next_state not in unsafe_states:
+                td_target = reward + discount_factor * Q[next_state,best_next_action]
+                td_delta = td_target - Q[state,action]
+                Q[state,action] += alpha * td_delta
 
 
             if t==num_steps-1 or state in targstates or state in unsafe_states:
