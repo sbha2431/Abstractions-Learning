@@ -219,11 +219,11 @@ def make_epsilon_greedy_policy(Q, epsilon,state,alphabet,successors,transdict,un
                 #if state == (200, 0, 180):
 
                    # print(transval,state,state2,act)
-                if state2 in unsafe_states and transval>0.7 and (state not in unsafe_states):
+                if state2 in unsafe_states and transval>0.5 and (state not in unsafe_states):
 
                     unsafe_act.add(act)
-                    if state==(200,0,180):
-                        print(state,state2,unsafe_act,transval)
+                    #if state==(200,0,180):
+                     #   print(state,state2,unsafe_act,transval)
             except:
                 pass
 
@@ -428,7 +428,7 @@ def qq_learning(env, num_episodes, num_steps,transdict,unsafe_states,discount_fa
             state = next_state
 
     return Q,stats_episode_rewards,stats_episode_goals,stats_episode_crashes
-num_eps=5000
+num_eps=100000
 Q, stats,stats_goal,stats_crash = qq_learning(robot_mdp,num_eps,1000,transdict,unsafe_states)
 #print(Q)
 #print(stats)
