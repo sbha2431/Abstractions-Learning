@@ -3,13 +3,12 @@ __author__ = 'sudab'
 import os, sys, getopt, pdb, string
 import random
 import numpy as np
-#import pygame
-from mdp import MDP
-#import pygame.locals as pgl
+import pygame
+import pygame.locals as pgl
 
 class Gridworld():
     # a gridworld with uneven terrain
-    def __init__(self, initial, nrows=8, ncols=8, nagents=1, targets=[], obstacles=[], moveobstacles = [], regions=dict(),preferred_acts=set()):
+    def __init__(self, initial, nrows=8, ncols=8, nagents=1, targets=[], obstacles=[], moveobstacles = [], regions=dict(),size=30):
         # walls are the obstacles. The edges of the gridworld will be included into the walls.
         # region is a string and can be one of: ['pavement','gravel', 'grass', 'sand']
         self.current = initial
@@ -45,17 +44,10 @@ class Gridworld():
 
         self.probOfSuccess = dict([])
         self.getProbRegions()
+
         for s in self.states:
             for a in self.actlist:
                 self.getProbs(s, a)
-        transitions = set()
-        for s in self.states:
-            for a in self.actlist:
-                for t in np.nonzero(self.prob[self.actlist[self.actlist.index(a)]][s])[0]:
-                    p = self.prob[self.actlist[self.actlist.index(a)]][s][t]
-                    transitions.add((s, a, t, p))
-
-        self.mdp = MDP(self.states, self.actlist, transitions)
 
     def coords(self, s):
         return (s / self.ncols, s % self.ncols)  # the coordinate for state s.
@@ -73,9 +65,9 @@ class Gridworld():
     def getProbRegions(self):
         probOfSuccess = dict([])
         for ground in self.regions.keys():
-            for direction in ['N', 'S', 'W', 'E']:
+            for direction in ['N', 'S', 'E', 'W']:
                 if ground == 'pavement':
-                    mass = random.choice(range(95, 98))
+                    mass = random.choice(range(90, 95))
                     massleft = 100 - mass
                     oneleft = random.choice(range(1, massleft))
                     twoleft = massleft - oneleft
@@ -392,7 +384,7 @@ class Gridworld():
             color = {'sand': (223, 225, 179), 'gravel': (255, 255, 255), 'grass': (211, 255, 192),
                      'pavement': (192, 255, 253),'deterministic': (255,255,255)}
             for s in range(self.nstates):
-                if not any(s in x for x in self.targets) and s not in self.obstacles and not any(s in x for x in self.colorstates):
+                if s not in self.edges and not any(s in x for x in self.targets) and s not in self.obstacles and not any(s in x for x in self.colorstates):
                     (x, y) = self.indx2coord(s)
                     coords = pygame.Rect(y - self.size / 2, x - self.size / 2, self.size, self.size)
                     coords = pygame.Rect(y, x, self.size, self.size)
